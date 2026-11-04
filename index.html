@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wheelbound</title>
+<meta name="description" content="The endless journey of Squeektoshi, written by the wheel. Every settled Squeekchain round moves the story forward.">
+<meta property="og:title" content="Wheelbound">
+<meta property="og:description" content="The endless journey of Squeektoshi, written by the wheel. A new chapter every day, a new boss every week.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://raw.githubusercontent.com/hoanghai101296/wheelbound/main/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Wheelbound: Squeektoshi the hamster on a moonlit trail, with three tactic cards">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hoanghai101296/wheelbound/main/og.png">
+<meta name="theme-color" content="#0e1420">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a night trail journal. Live scene + boss up top, the trail of landmarks as a scroll strip, then the chronicle of chapters. */
+:root{
+  --ink:#0e1420; --panel:#151d2c; --panel-2:#1b2537; --line:#28344c;
+  --fg:#efe9dc; --muted:#8f9bb3; --lantern:#ffc861; --ember:#ff7a59; --moss:#7bd389;
+  --f-display:"Gloock","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --f-body:"Instrument Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ink);color:var(--fg)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+[hidden]{display:none!important}
+.wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--lantern);outline-offset:2px}
+.label{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+a{color:var(--lantern)}
+
+header.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px 24px}
+.brand h1{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(44px,8vw,84px);line-height:.95;letter-spacing:-.01em}
+.brand h1 em{font-style:normal;color:var(--lantern)}
+.brand p{margin:8px 0 0;color:var(--muted);max-width:56ch;text-wrap:balance}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-family:var(--f-mono);font-size:12px;background:var(--panel)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.dot.on{background:var(--moss);box-shadow:0 0 8px var(--moss)}
+.dot.warn{background:var(--lantern)}
+.dot.bad{background:var(--ember)}
+
+.hero{position:relative;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--panel)}
+#scene{display:block;width:100%;height:auto;aspect-ratio:16/7;max-width:100%}
+.hero-cap{position:absolute;left:0;right:0;bottom:0;padding:18px 20px;display:flex;flex-wrap:wrap;gap:10px 28px;align-items:flex-end;
+  background:linear-gradient(to top,rgba(10,14,22,.92),rgba(10,14,22,0))}
+.hero-cap .where{min-width:0;flex:1 1 280px}
+.hero-cap .where b{display:block;font-family:var(--f-display);font-weight:400;font-size:clamp(22px,3.2vw,32px);line-height:1.1}
+.hero-cap .where span{color:var(--muted);font-size:14px}
+@media (max-width:640px){
+  .hero-cap{position:static;background:var(--panel);padding:14px 16px}
+}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r);background:var(--panel);overflow:hidden}
+.stats>div{padding:14px 16px;border-left:1px solid var(--line);min-width:0}
+.stats>div:first-child{border-left:0}
+.stats .v{font-family:var(--f-display);font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.stats .s{font-size:13px;color:var(--muted)}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats>div:nth-child(3){border-left:0}.stats>div:nth-child(n+3){border-top:1px solid var(--line)}}
+
+.raid-head{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:end}
+@media (max-width:880px){.raid-head{grid-template-columns:minmax(0,1fr)}}
+.raid-intro h2{margin:6px 0 4px}
+.raid-bars{display:flex;flex-direction:column;gap:12px}
+.rb-l{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin-bottom:6px}
+.hp>i.mine{background:linear-gradient(90deg,var(--lantern),#ffe3a3)}
+.hand-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin:22px 0 12px}
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{cursor:pointer;border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600}
+.tab[aria-pressed="true"]{background:var(--fg);color:var(--ink);border-color:var(--fg)}
+.hand{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:760px){.hand{grid-template-columns:minmax(0,1fr)}}
+.card{cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px;padding:16px 16px 14px;border-radius:12px;border:1px solid var(--line);
+  background:linear-gradient(160deg,var(--panel-2),#121929);transition:transform .15s,border-color .15s;min-width:0}
+.card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--lantern) 50%,var(--line))}
+.card[aria-checked="true"]{border-color:var(--lantern);box-shadow:0 0 0 1px var(--lantern),0 10px 30px -12px rgba(255,200,97,.45)}
+.card svg{width:44px;height:44px;fill:none;stroke:var(--lantern);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.card b{font-family:var(--f-display);font-weight:400;font-size:22px;line-height:1.15}
+.card .rule{font-size:14px;color:#d9d3c6}
+.card .hint{font-size:12px;color:var(--muted)}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:18px}
+@media (max-width:760px){.week{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.wday{display:flex;flex-direction:column;gap:2px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);min-width:0}
+.wday.now{border-color:var(--lantern)}
+.wday.future{opacity:.6}
+.wday .k{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.wday .ic svg{width:26px;height:26px;fill:none;stroke:var(--lantern);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.wday .ic .none{display:inline-block;height:26px;color:var(--muted)}
+.wday .nm{font-size:12px;font-weight:600;line-height:1.2;overflow-wrap:anywhere}
+.wday .st{color:var(--lantern);font-size:13px;letter-spacing:.05em}
+.wday .dm{font-family:var(--f-mono);font-size:12px}
+.wday .best{font-size:11px;color:var(--muted);line-height:1.2}
+.raid-foot{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-start;margin-top:16px}
+.raid-foot .boss-log{margin:0;flex:1 1 300px}
+
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:20px}
+@media (max-width:880px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.panel h2{margin:0 0 4px;font-family:var(--f-display);font-weight:400;font-size:26px}
+.panel .sub{color:var(--muted);font-size:14px;margin:0 0 14px}
+
+.boss-name{font-family:var(--f-display);font-size:28px;line-height:1.15;margin:6px 0 2px}
+.boss-epi{color:var(--muted);font-size:14px;margin:0 0 14px}
+.hp{height:16px;border-radius:8px;background:var(--panel-2);overflow:hidden;border:1px solid var(--line)}
+.hp>i{display:block;height:100%;background:linear-gradient(90deg,var(--ember),#ffb15a);transition:width .6s ease}
+.hp-row{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.boss-log{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.boss-log li{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:6px}
+.boss-log .won{color:var(--moss)} .boss-log .lost{color:var(--muted)}
+
+.trail{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x proximity}
+.lm{flex:0 0 168px;scroll-snap-align:start;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--panel-2);display:flex;flex-direction:column;gap:2px;min-width:0}
+.lm .k{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.lm .n{font-weight:600;line-height:1.25}
+.lm .d{font-size:12px;color:var(--muted)}
+.lm.passed{border-color:color-mix(in srgb,var(--lantern) 40%,var(--line))}
+.lm.passed .n::before{content:"\25C6  ";color:var(--lantern)}
+.lm.next{border:1px dashed var(--lantern)}
+.lm.biome{background:transparent;border-style:dotted}
+.lm.biome .n{font-family:var(--f-display);font-weight:400;font-size:18px}
+
+.chron-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.chron-head h2{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(30px,4vw,40px)}
+.chapters{display:flex;flex-direction:column;gap:22px}
+.chapter{display:grid;grid-template-columns:minmax(0,1fr) 220px;grid-template-areas:"art art" "text facts";background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media (max-width:760px){.chapter{grid-template-columns:minmax(0,1fr);grid-template-areas:"art" "facts" "text"}}
+.chapter canvas{grid-area:art;display:block;width:100%;height:auto;aspect-ratio:12/4;max-width:100%;background:var(--panel-2)}
+.chapter .facts{grid-area:facts;display:flex;flex-direction:column;border-left:1px solid var(--line)}
+.chapter .facts div{padding:14px 16px;border-top:1px solid var(--line);min-width:0}
+.chapter .facts div:first-child{border-top:0}
+@media (max-width:760px){.chapter .facts{flex-direction:row;border-left:0;border-bottom:1px solid var(--line)}.chapter .facts div{flex:1;border-top:0;border-left:1px solid var(--line)}.chapter .facts div:first-child{border-left:0}}
+.chapter .facts b{display:block;font-family:var(--f-display);font-weight:400;font-size:20px;font-variant-numeric:tabular-nums}
+.chapter .facts span{font-size:12px;color:var(--muted)}
+.chapter .text{grid-area:text;padding:20px 24px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.chapter .paras{display:flex;flex-direction:column;gap:10px}
+.chapter .eyebrow{font-family:var(--f-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--lantern)}
+.chapter h3{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(24px,3vw,30px);line-height:1.15;text-wrap:balance}
+.chapter p{margin:0;max-width:62ch;color:#d9d3c6}
+.chapter .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:6px}
+.btn{cursor:pointer;border:1px solid var(--line);background:transparent;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600}
+.btn:hover{border-color:var(--lantern)}
+.chapter.today{border-color:color-mix(in srgb,var(--lantern) 55%,var(--line))}
+.chapters .more{align-self:center;padding:10px 18px}
+.loading{color:var(--muted);padding:18px;border:1px dashed var(--line);border-radius:var(--r)}
+details.how{color:var(--muted);font-size:15px}
+details.how summary{cursor:pointer;color:var(--fg);font-weight:600}
+details.how p{max-width:72ch}
+footer{font-family:var(--f-mono);font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--ink);padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+
+/* stream overlay mode (#overlay): transparent page, one compact card for OBS browser sources */
+html.overlay,html.overlay body{background:transparent}
+body.overlay{padding:12px}
+body.overlay .wrap > *:not(.ov-panel){display:none!important}
+body.overlay .ov-panel{display:block;background:transparent;border:0;padding:0}
+body.overlay .ov-text{display:none}
+.ov-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:24px;align-items:center}
+@media (max-width:880px){.ov-panel{grid-template-columns:minmax(0,1fr)}}
+.ov-prev{min-width:0;padding:18px;border-radius:12px;background:repeating-conic-gradient(#1b2537 0% 25%,#151d2c 0% 50%) 0 0/24px 24px}
+body.overlay .ov-prev{padding:0;background:none}
+.steps{margin:0 0 14px;padding-left:20px;color:#d9d3c6;font-size:15px}
+.ov-url{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.ov-url code{font-family:var(--f-mono);font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);overflow-wrap:anywhere;min-width:0;max-width:100%}
+#ov{display:flex;width:min(460px,100%);flex-direction:column;gap:8px;padding:14px 16px;border-radius:14px;background:rgba(14,20,32,.86);border:1px solid rgba(255,200,97,.35);backdrop-filter:blur(6px)}
+#ov .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+#ov .t{font-family:var(--f-display);font-size:22px}
+#ov .bar{height:8px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
+#ov .bar i{display:block;height:100%;background:var(--lantern)}
+#ov .bar.boss i{background:var(--ember)}
+#ov small{color:var(--muted);font-family:var(--f-mono);font-size:11px}
+@media (prefers-reduced-motion:reduce){.hp>i{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Wheel<em>bound</em></h1>
+      <p>The endless journey of Squeektoshi, written by the wheel. Every settled Squeekchain round moves the story forward: a new chapter every day, a new boss every week.</p>
+    </div>
+    <div class="chips">
+      <span class="chip" aria-live="polite"><span class="dot" id="feedDot"></span><span id="feedTxt">Connecting…</span></span>
+      <span class="chip"><span class="dot" id="histDot"></span><span id="histTxt">Reading the chain…</span></span>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="Where Squeektoshi is now">
+    <canvas id="scene" width="1600" height="700" role="img" aria-label="Squeektoshi on the trail"></canvas>
+    <div class="hero-cap">
+      <div class="where"><span class="label" id="heroBiome">On the trail</span><b id="heroWhere">Finding the trail…</b><span id="heroNext">&nbsp;</span></div>
+    </div>
+  </section>
+
+  <section class="stats" aria-label="Journey so far">
+    <div><div class="label">Journey so far</div><div class="v" id="stTotal">—</div><div class="s" id="stTotalSub">real distance on the wheel</div></div>
+    <div><div class="label">Today</div><div class="v" id="stToday">—</div><div class="s" id="stTodaySub">wheel day starts 12:00 UTC</div></div>
+    <div><div class="label">Landmarks passed</div><div class="v" id="stLm">—</div><div class="s" id="stLmSub">one every 5 km</div></div>
+    <div><div class="label">Bosses defeated</div><div class="v" id="stBoss">—</div><div class="s" id="stBossSub">one boss per week</div></div>
+  </section>
+
+  <section class="panel raid" aria-labelledby="raidH">
+    <div class="raid-head">
+      <div class="raid-intro">
+        <span class="label" id="raidBoss">The Raid Table</span>
+        <h2 id="raidH">Play the week against the boss</h2>
+        <p class="sub">Every wheel day, everyone is dealt the same three tactic cards. Pick one before the wheel first turns. Squeektoshi's real running, shaped by your card, is your damage; a day without a card deals only half. Beat the boss's health ×1.4 by the end of the week.</p>
+      </div>
+      <div class="raid-bars">
+        <div class="rb"><div class="rb-l"><span>Your raid</span><span id="raidMineTxt" class="num">—</span></div><div class="hp"><i id="raidMine" class="mine" style="width:0%"></i></div></div>
+        <div class="rb"><div class="rb-l"><span>Squeektoshi alone</span><span id="raidAloneTxt" class="num">—</span></div><div class="hp"><i id="raidAlone" style="width:0%"></i></div></div>
+      </div>
+    </div>
+    <div class="hand-head"><div class="tabs" id="handTabs" role="group" aria-label="Which day to pick for"></div><span class="label" id="handLock"></span></div>
+    <div class="hand" id="hand" role="radiogroup" aria-label="Tactic cards"></div>
+    <div class="week" id="weekStrip" aria-label="This week"></div>
+    <div class="raid-foot"><button class="btn" id="raidShare" type="button">Share this week</button><ul class="boss-log" id="raidHist"></ul></div>
+  </section>
+
+  <section class="grid2">
+    <div class="panel" aria-labelledby="bossH">
+      <span class="label" id="bossWeek">This week's boss</span>
+      <h2 id="bossH" hidden>Weekly boss</h2>
+      <div class="boss-name" id="bossName">—</div>
+      <p class="boss-epi" id="bossEpi">&nbsp;</p>
+      <div class="hp" role="progressbar" aria-label="Boss health" aria-valuemin="0" aria-valuemax="100" id="hpBar"><i id="hpFill" style="width:100%"></i></div>
+      <div class="hp-row"><span id="hpLeft">—</span><span id="hpTime">—</span></div>
+      <ul class="boss-log" id="bossLog"></ul>
+    </div>
+    <div class="panel" aria-labelledby="trailH">
+      <h2 id="trailH">The trail</h2>
+      <p class="sub">Every 5 km of real running reaches a landmark. Every 25 km the land changes.</p>
+      <div class="trail" id="trail" tabindex="0" aria-label="Landmarks along the trail"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="chronH">
+    <div class="chron-head">
+      <h2 id="chronH">The Chronicle</h2>
+      <span class="label" id="chronSub">One chapter per wheel day · times in UTC</span>
+    </div>
+    <div class="chapters" id="chapters"><div class="loading">Reading the wheel's history from the chain…</div></div>
+  </section>
+
+  <section class="panel ov-panel" aria-labelledby="ovH">
+    <div class="ov-text">
+      <h2 id="ovH">Put the journey on your stream</h2>
+      <p class="sub">A live, transparent card for OBS or any streaming tool: where Squeektoshi is, the next landmark and the boss's health. It updates on its own.</p>
+      <ol class="steps"><li>Copy the overlay link.</li><li>In OBS, add a <b>Browser</b> source and paste it. Size 480 × 230.</li><li>That's it. The background is transparent.</li></ol>
+      <div class="ov-url"><code id="ovUrl">#overlay</code><button class="btn" id="ovCopy" type="button">Copy overlay link</button></div>
+    </div>
+    <div class="ov-prev">
+      <div id="ov">
+    <div class="row"><span class="t">Wheelbound</span><small id="ovState">—</small></div>
+    <div class="row"><span id="ovWhere">—</span><small id="ovToday">—</small></div>
+    <div class="bar"><i id="ovLm" style="width:0%"></i></div>
+    <small id="ovLmTxt">—</small>
+    <div class="bar boss"><i id="ovBoss" style="width:100%"></i></div>
+    <small id="ovBossTxt">—</small>
+      </div>
+    </div>
+  </section>
+
+  <details class="how">
+    <summary>How Wheelbound works</summary>
+    <p>Squeektoshi runs on a real wheel. Squeekchain measures every turn, settles the work of each 10-minute round on chain, and publishes the measurements at api.squeekchain.com. Wheelbound reads that public data and turns it into a journey.</p>
+    <p>The distance on the trail is the real distance the wheel turned. A landmark sits every 5 km and the land changes every 25 km. Each wheel day (12:00 to 12:00 UTC, as Squeekchain counts it) becomes a chapter: its painting is drawn from the 48 half-hours of running that day, and its text from the settled rounds, the milestones and the records. Each week a boss waits on the trail; the distance run that week is the damage dealt.</p>
+    <p>Names, paintings and words are derived from the chain data with a fixed seed, so everyone who opens Wheelbound reads the same story. Add <code>#overlay</code> to the address for a transparent stream overlay.</p>
+  </details>
+
+  <footer>
+    <span id="srcTxt">Data: api.squeekchain.com</span>
+    <span id="foot2">&nbsp;</span>
+    <a href="https://squeekchain.com/" target="_blank" rel="noopener">squeekchain.com</a>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+'use strict';
+const API = 'https://api.squeekchain.com';
+const KEY = 'wheelbound.v1';
+const LM_MM = 5000000;           // a landmark every 5 km
+const BIOME_MM = 25000000;       // the land changes every 25 km
+const DAY = 86400000, HALF = 1800000;
+const $ = id => document.getElementById(id);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const num = x => (typeof x === 'string' || typeof x === 'number') && String(x).trim() !== '' && Number.isFinite(+x) ? +x : NaN;
+const km = mm => (mm / 1e6);
+const fmtKm = (mm, d = 1) => km(mm).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }) + ' km';
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const hhmm = ms => { const d = new Date(ms); return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dateLabel = s => { const [y, m, d] = s.split('-').map(Number); return MONTHS[m - 1] + ' ' + d; };
+
+/* ---------- deterministic randomness: same seed, same story for everyone ---------- */
+function hash(str){ let h1 = 0xdeadbeef ^ str.length, h2 = 0x41c6ce57 ^ str.length;
+  for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0) * 4294967296 + (h1 >>> 0); }
+function rng(seed){ let a = hash(seed) % 4294967296; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const pick = (r, arr) => arr[Math.floor(r() * arr.length) % arr.length];
+
+/* ---------- the world ---------- */
+const BIOMES = [
+  { name:'Seed Meadows', prop:'flowers', sky:['#20314a','#5b7d8a'], hills:['#2f5b4a','#3f7a55'], accent:'#ffd36e', flavor:['Sunflower seeds lay in drifts along the path.','The meadow grass stood taller than any hamster.','Clover leaves dripped with the evening dew.'] },
+  { name:'Cardboard Canyons', prop:'mesa', sky:['#2a2233','#8a5d4a'], hills:['#6b4a33','#8f6440'], accent:'#ffb36b', flavor:['Corrugated cliffs rose on either side.','Paper-thin bridges spanned the narrow gorges.','The canyon walls still smelled faintly of packing tape.'] },
+  { name:'Sawdust Dunes', prop:'dune', sky:['#2b2a3a','#b08f6a'], hills:['#a8875c','#c9a774'], accent:'#fff0b8', flavor:['Soft dunes shifted under every step.','A warm wind lifted the sawdust into little spirals.','The dunes rolled on, pale gold, as far as whiskers could sense.'] },
+  { name:'Copper Wire Marshes', prop:'reeds', sky:['#14262c','#3f6f6a'], hills:['#2a4f4a','#b46a3c'], accent:'#ff9d5c', flavor:['Coils of copper glinted in the reeds.','The marsh hummed with a low electric song.','Every puddle reflected a tangle of bright wire.'] },
+  { name:'Sunflower Forest', prop:'sunflower', sky:['#1f2b20','#6f8a3f'], hills:['#3f5a26','#d3a72f'], accent:'#ffe066', flavor:['Giant sunflowers turned to watch the runner pass.','Petals the size of blankets drifted down.','Bees the size of acorns drowsed in the canopy.'] },
+  { name:'Glass Bottle Coast', prop:'bottles', sky:['#10263a','#3e8aa1'], hills:['#2c6a80','#7fc3c9'], accent:'#bff6ff', flavor:['Sea glass crunched like sugar along the shore.','Bottles bobbed in the surf, each holding a tiny lighthouse.','Salt spray caught the light in green and blue.'] },
+  { name:'Moonlit Burrows', prop:'arches', sky:['#0d0f24','#3a2f6b'], hills:['#2a2350','#4b3d86'], accent:'#d9c9ff', flavor:['Tunnels branched away into soft blue darkness.','Glow-worms lit the burrow ceilings like stars.','Somewhere deep below, another wheel was turning.'] },
+  { name:'Lantern Steppe', prop:'lanterns', sky:['#241a24','#a0603a'], hills:['#5a3a2a','#9a5a30'], accent:'#ffc861', flavor:['Paper lanterns hung from the dry grass, swaying.','The steppe glowed orange at every horizon.','Travellers had left lanterns burning for whoever came next.'] },
+];
+const LM_A = ['Sunflower','Whisker','Clover','Thimble','Acorn','Marble','Lantern','Burrow','Pumpkin','Chestnut','Saffron','Dandelion','Teacup','Button','Walnut','Bramble','Pebble','Velvet','Cinnamon','Hazel'];
+const LM_B = ['Gate','Falls','Bridge','Hollow','Tower','Crossing','Ridge','Well','Arch','Ford','Spire','Steps','Grove','Lighthouse','Market','Mill','Gardens','Pass'];
+const BOSSES = [
+  ['the Lint Leviathan','It drifts out of the dryer vents, bigger every week.'],
+  ['Sir Hoover the Ravenous','A knight of the vacuum order who swallows trails whole.'],
+  ['the Clockwork Cat','Tick, tock. It never sleeps and never stops counting.'],
+  ['the Static Storm','A crackling cloud that makes every whisker stand on end.'],
+  ['Old Mopsy the Broom','She sweeps the path clean of anything small enough.'],
+  ['the Great Gray Owl','Silent wings over the trail, every night of the week.'],
+  ['the Sock Golem','Built from every sock that ever went missing.'],
+  ['the Dust Bunny King','He rules the shadows under the furniture of the world.'],
+  ['Baron von Vacuum','He wants the wheel stopped, and the runner with it.'],
+  ['the Midnight Mousetrap','It waits with the patience of spring steel.'],
+];
+const biomeOrder = inst => { const r = rng('biomes|' + inst); const idx = BIOMES.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  if (idx[0] !== 0) { const z = idx.indexOf(0); [idx[0], idx[z]] = [idx[z], idx[0]]; } // the journey always starts in the Seed Meadows
+  return idx; };
+const roman = n => { const m = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; let s = ''; for (const [v, t] of m) while (n >= v) { s += t; n -= v; } return s; };
+function biomeAt(world, posMm){ const b = Math.floor(Math.max(0, Number.isFinite(posMm) ? posMm : 0) / BIOME_MM); const cyc = Math.floor(b / BIOMES.length);
+  const def = BIOMES[world.order[b % BIOMES.length]]; return { index: b, def, name: def.name + (cyc ? ' ' + roman(cyc + 1) : '') }; }
+// Landmark names are drawn without replacement: every combination is used once before any repeats.
+const lmPerm = inst => { const r = rng('lmperm|' + inst); const all = []; for (const a of LM_A) for (const b of LM_B) all.push(a + ' ' + b);
+  for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; } return all; };
+function landmarkName(world, k){ const p = world.lmPerm; const cyc = Math.floor((k - 1) / p.length); return 'the ' + p[(k - 1) % p.length] + (cyc ? ' ' + roman(cyc + 1) : ''); }
+// Bosses come in shuffled cycles of ten with no boss twice in a row.
+function bossFor(world, w){
+  const cyc = Math.floor(w / BOSSES.length), order = c => { const r = rng('bosses|' + world.inst + '|' + c); const idx = BOSSES.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; } return idx; };
+  const o = order(cyc); if (cyc > 0) { const prev = order(cyc - 1); if (o[0] === prev[prev.length - 1]) [o[0], o[1]] = [o[1], o[0]]; }
+  const b = BOSSES[o[w % BOSSES.length]]; const r = rng('boss|' + world.inst + '|' + w);
+  return { name: b[0], epithet: b[1], hpMm: Math.round((45 + r() * 25) * 1e6) }; }
+
+/* ---------- persistent cache: settled rounds and where history paging left off ---------- */
+// The wheel's distance is exactly work × 878 mm on Squeekchain (the stats endpoint confirms it to the millimetre),
+// so every past day's distance comes from settled work alone and never changes.
+const MM_PER_WORK_DEFAULT = 878;
+const store = {
+  get(){ try { const v = JSON.parse(localStorage.getItem(KEY) || 'null'); return v && typeof v === 'object' ? v : null; } catch { return null; } },
+  set(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} },
+};
+const S = {
+  inst: null, g: NaN, d: 600, offsetMs: 12 * 3600000, mmw: MM_PER_WORK_DEFAULT,
+  statsDays: [], lifetimeMm: NaN, statsAt: 0,
+  rounds: new Map(), batched: new Set(), dead: new Set(), walks: [], histPaging: false, settled: 0,
+  meas: [], status: null, statusAt: 0, apiErr: 0, ready: false, coreAt: 0,
+};
+// rounds are stored as runs: [[firstRound, "w,w,w,…"], …]
+function encodeRounds(){ const ks = [...S.rounds.keys()].sort((a, b) => a - b); const out = []; let cur = null;
+  for (const r of ks) { if (cur && r === cur[0] + cur[1].length) cur[1].push(S.rounds.get(r)); else { cur = [r, [S.rounds.get(r)]]; out.push(cur); } }
+  return out.map(([r, ws]) => [r, ws.join(',')]); }
+(function restore(){ const c = store.get(); if (!c || c.v !== 2) return;
+  if (typeof c.inst === 'string') S.inst = c.inst;
+  if (Array.isArray(c.runs)) for (const run of c.runs) { if (!Array.isArray(run) || !Number.isInteger(run[0]) || typeof run[1] !== 'string') continue;
+    run[1].split(',').forEach((w, i) => { const W = +w, R = run[0] + i; if (R > 0 && Number.isFinite(W) && W >= 0) S.rounds.set(R, W); }); }
+  if (Array.isArray(c.batched)) for (const r of c.batched) if (Number.isInteger(r)) S.batched.add(r);
+  if (Array.isArray(c.dead)) for (const r of c.dead) if (Number.isInteger(r) && !S.rounds.has(r)) S.dead.add(r);
+  if (Array.isArray(c.walks)) S.walks = c.walks.filter(w => w && (w.cursor === null || typeof w.cursor === 'string') && Number.isInteger(w.stopAt))
+    .map(w => ({ cursor: w.cursor, stopAt: w.stopAt, at: Number.isInteger(w.at) ? w.at : null }));
+})();
+// Another tab may have read rounds this one has not: merge them in before writing, so tabs never undo each other.
+function persist(){
+  const c = store.get();
+  if (c && c.v === 2 && c.inst === S.inst && Array.isArray(c.runs)) for (const run of c.runs) { if (!Array.isArray(run) || !Number.isInteger(run[0]) || typeof run[1] !== 'string') continue;
+    run[1].split(',').forEach((w, i) => { const W = +w, R = run[0] + i; if (R > 0 && Number.isFinite(W) && W >= 0 && !S.rounds.has(R)) { S.rounds.set(R, W); if (Array.isArray(c.batched) && c.batched.includes(R)) S.batched.add(R); } }); }
+  store.set({ v: 2, inst: S.inst, runs: encodeRounds(), batched: [...S.batched], dead: [...S.dead].slice(-2000), walks: S.walks.map(w => ({ cursor: w.cursor, stopAt: w.stopAt, at: w.at })) }); }
+// Server time: the status snapshot's generatedAt carried forward on the monotonic clock, so changing the computer's clock
+// changes nothing. The snapshot can be a little old, so the newest-looking of the recent samples wins.
+const clk = [];
+function noteServerTime(gen){ const t = Date.parse(gen); if (!Number.isFinite(t)) return; clk.push(t - performance.now()); if (clk.length > 20) clk.shift(); }
+const srvNow = () => clk.length ? Math.max(...clk) + performance.now() : Date.now();
+// A new game installation restarts everything: rounds, history paging, round config.
+function checkInst(id){ if (typeof id !== 'string' || !id) return;
+  if (S.inst && S.inst !== id) { S.rounds.clear(); S.batched.clear(); S.dead.clear(); S.walks = []; S.meas = []; S.settled = 0; S.g = NaN; S.statsDays = []; S.lifetimeMm = NaN; S.instChanged = true; }
+  S.inst = id; }
+
+async function getJSON(path){
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 15000);
+  try { const r = await fetch(API + path, { signal: ctl.signal, cache: 'no-store' }); if (!r.ok) { const e = new Error('HTTP ' + r.status); e.status = r.status; throw e; } return await r.json(); }
+  finally { clearTimeout(to); }
+}
+async function loadCore(){
+  const j = await getJSON('/v1/core'); checkInst(j?.installationId);
+  const c = j?.configuration || {}; const g = num(c.genesisTimestamp), d = num(c.roundDuration);
+  if (g > 0 && d >= 60) { S.g = g; S.d = d; }
+  const s = num(j?.core?.settledThroughRound); if (Number.isInteger(s)) S.settled = Math.max(S.settled, s);
+  S.coreAt = Date.now();
+}
+async function loadStats(){
+  const j = await getJSON('/v1/measurement/stats?range=30d'); checkInst(j?.installationId);
+  const days = Array.isArray(j?.activity?.days) ? j.activity.days : [];
+  const start = Date.parse(j?.window?.startAt);
+  const first = days.find(d => d && typeof d.date === 'string');
+  if (first && Number.isFinite(start)) { const off = ((start - Date.parse(first.date + 'T00:00:00Z')) % DAY + DAY) % DAY; if (Number.isFinite(off)) S.offsetMs = off; }
+  const out = []; let lw = 0, lm = 0;
+  for (const d of days) {
+    if (!d || typeof d.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(d.date)) continue;
+    const startMs = Date.parse(d.date + 'T00:00:00Z') + S.offsetMs;
+    const buckets = (Array.isArray(d.buckets) ? d.buckets : []).filter(b => b && Number.isFinite(num(b.startMinuteUtc))).map(b => {
+      let t = Date.parse(d.date + 'T00:00:00Z') + num(b.startMinuteUtc) * 60000; if (t < startMs) t += DAY;
+      return { t, work: Math.max(0, num(b.workUnits) || 0) };
+    }).sort((a, b) => a.t - b.t);
+    const work = Math.max(0, num(d.observedWorkUnits) || 0), mm = num(d.distanceMm);
+    if (work > 0 && mm > 0) { lw += work; lm += mm; }
+    out.push({ date: d.date, startMs, work, distMm: mm, buckets });
+  }
+  if (out.length) S.statsDays = out;
+  if (lw > 0 && lm > 0 && Math.abs(lm / lw - Math.round(lm / lw)) < 1e-6) S.mmw = Math.round(lm / lw);
+  const life = num(j?.lifetime?.observedDistanceMm); if (life >= 0) S.lifetimeMm = life;
+  S.statsAt = Date.now();
+}
+async function loadStatus(){
+  const j = await getJSON('/v1/status'); if (!j || typeof j !== 'object') throw new Error('bad status');
+  checkInst(j.installationId); S.status = j; S.statusAt = Date.now(); noteServerTime(j.generatedAt);
+  const s = num(j?.builder?.anchor?.settledThroughRound); if (Number.isInteger(s)) S.settled = Math.max(S.settled, s);
+}
+async function loadMeas(){
+  const all = []; let cur = null;
+  for (let i = 0; i < 40; i++) {
+    const j = await getJSON('/v1/events?category=measurement&limit=100' + (cur ? '&cursor=' + encodeURIComponent(cur) : ''));
+    checkInst(j?.installationId);
+    for (const e of (Array.isArray(j?.events) ? j.events : [])) if (e && typeof e.type === 'string' && e.payload && typeof e.payload === 'object' && Number.isFinite(Date.parse(e.occurredAt))) all.push({ type: e.type, at: Date.parse(e.occurredAt), p: e.payload });
+    cur = typeof j?.nextCursor === 'string' && j.nextCursor ? j.nextCursor : null; if (!cur) break;
+  }
+  S.meas = all;
+}
+function applySettlement(p){
+  const a = num(p.previousSettledThroughRound), b = num(p.settledThroughRound), act = num(p.activeRoundCount), w = num(p.workAdded);
+  if (!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b <= a || b - a > 5000) return null;
+  S.settled = Math.max(S.settled, b);
+  if (b - a === 1 && w >= 0) { S.rounds.set(b, w); S.batched.delete(b); }
+  else if (act === 0) for (let r = a + 1; r <= b; r++) { S.rounds.set(r, 0); S.batched.delete(r); }
+  else if (w >= 0) { for (let r = a + 1; r < b; r++) { S.rounds.set(r, 0); S.batched.add(r); } S.rounds.set(b, w); S.batched.add(b); } // a batch: its work sits on its last round, marked
+  return a + 1;
+}
+// History is read as walks down the settlement feed (newest first). A walk reads from its cursor down to its stop round
+// and ends only itself. Every pass starts a walk from the newest page down to the highest cached round, plus a walk for
+// every hole in the cached rounds that no walk covers yet, so a cut-short or failed walk is healed on a later pass.
+// When the feed refuses a cursor or ends a page early (it sometimes does), that walk waits a few passes and every second
+// failure starts it again from the newest page, with fresh cursors.
+function holes(top){ const out = []; let a = null;
+  for (let r = 1; r <= top; r++) { if (S.rounds.has(r) || S.dead.has(r)) { if (a != null) { out.push([a, r - 1]); a = null; } } else if (a == null) a = r; }
+  if (a != null) out.push([a, top]); return out; }
+// restart: start the walk again from the newest page (a refused or expired cursor); otherwise retry the same cursor later
+function walkFailed(w, restart){ w.fails = (w.fails || 0) + 1; if (restart || !w.cursor) { w.cursor = null; w.at = null; w.hi = undefined; } w.skip = w.fails > 1 ? Math.min(30, 2 ** (w.fails - 1)) : 0; }
+async function loadHistory(budget, onPage){
+  if (S.histPaging) return; S.histPaging = true;
+  try {
+    let top = 0; for (const r of S.rounds.keys()) if (r > top) top = r;
+    for (const w of S.walks) if (w.skip > 0) w.skip--;
+    const fresh = S.walks.find(w => w.cursor === null && w.at === null && !(w.skip > 0));
+    if (fresh) fresh.stopAt = Math.min(fresh.stopAt, top); else S.walks.unshift({ cursor: null, stopAt: top, at: null });
+    for (const [a, b] of holes(top)) if (!S.walks.some(w => w.stopAt < a && (w.at === null || w.at > b))) S.walks.push({ cursor: null, stopAt: a - 1, at: null });
+    let pages = 0; const walks = S.walks;
+    while (pages < budget) {
+      const w = S.walks.find(x => !(x.skip > 0)); if (!w) break;
+      let j;
+      try { j = await getJSON('/v1/events?category=protocol&limit=100' + (w.cursor ? '&cursor=' + encodeURIComponent(w.cursor) : '')); }
+      catch (e) { if (S.walks !== walks) break; if ([400, 404, 410].includes(e.status)) { walkFailed(w, true); pages++; continue; } throw e; } // 429 and 5xx: wait for the next pass
+      if (S.walks !== walks) break;
+      checkInst(j?.installationId); if (S.walks !== walks) break;                   // a new installation reset the history
+      pages++;
+      let min = Infinity; const evs = Array.isArray(j?.events) ? j.events : [];
+      const fromTop = w.cursor === null;
+      for (const e of evs) {
+        if (!e || e.type !== 'system.settlement_completed' || !e.payload || typeof e.payload !== 'object') continue;
+        const lo = applySettlement(e.payload); if (lo != null) { min = Math.min(min, lo); if (fromTop && w.at === null) w.hi = Math.max(w.hi || 0, num(e.payload.settledThroughRound)); }
+      }
+      if (Number.isFinite(min)) w.at = w.at === null ? min : Math.min(w.at, min);
+      const next = typeof j?.nextCursor === 'string' && j.nextCursor ? j.nextCursor : null;
+      if (w.at !== null && w.at <= w.stopAt + 1) {                                        // reached its stop round
+        S.walks.splice(S.walks.indexOf(w), 1);
+        // a walk read every settlement from its top down: rounds still missing in that range have no usable settlement
+        if (w.hi > 0) for (let r = w.stopAt + 1; r <= w.hi; r++) if (!S.rounds.has(r)) S.dead.add(r);
+      }
+      else if (!next || next === w.cursor) walkFailed(w, !evs.length);                   // the feed ended above it: try again later
+      else w.cursor = next;
+      if (pages % 5 === 0) persist();
+      if (onPage) onPage();
+    }
+    persist();
+  } finally { S.histPaging = false; }
+}
+
+/* ---------- building the story from the data ---------- */
+const roundEnd = r => (S.g + r * S.d) * 1000;
+const dayStartOf = t => Math.floor((t - S.offsetMs) / DAY) * DAY + S.offsetMs;
+const dateOfStart = s => new Date(s - S.offsetMs).toISOString().slice(0, 10);
+function buildWorld(){
+  const inst = S.inst || 'squeekchain';
+  const world = { inst, order: biomeOrder(inst), lmPerm: lmPerm(inst), days: [], landmarks: [], weeks: [], posMm: NaN, now: srvNow(), complete: false };
+  if (!Number.isFinite(S.g)) return world;
+  const now = world.now; const mmw = S.mmw;
+  const stats = new Map(S.statsDays.map(d => [d.date, d]));
+  const g0 = dayStartOf(roundEnd(1) - 1);
+  for (let s = g0, i = 0; s <= now; s += DAY, i++) {
+    const date = dateOfStart(s); const d = { date, startMs: s, endMs: s + DAY, index: i, chapter: i + 1, isToday: now < s + DAY };
+    const r0 = Math.floor((s / 1000 - S.g) / S.d) + 1, r1 = Math.floor(((s + DAY) / 1000 - S.g) / S.d);
+    const list = []; let missing = 0, batched = false;
+    let inner = false; // today: newest rounds not read yet are fine (the live counter covers them); a gap before a read round is not
+    let dead = 0;
+    for (let r = Math.max(1, r0); r <= r1; r++) { if (roundEnd(r) > now || r > S.settled) break; const w = S.rounds.get(r); if (w === undefined) { missing++; if (S.dead.has(r)) dead++; continue; } if (missing) inner = true; if (S.batched.has(r)) batched = true; list.push({ r, w, end: roundEnd(r), batched: S.batched.has(r) }); }
+    if (d.isToday && !inner && list.length > 0 && missing <= 6) missing = 0;
+    d.rounds = list; d.batched = batched;
+    // a past day is final only once all its rounds have settled; until then it is 'settling' and uses the stats day
+    d.complete = missing === 0 && (d.isToday ? (list.length > 0 || r0 > S.settled) : S.settled >= r1);
+    d.settling = !d.isToday && !d.complete && missing === 0 && S.settled < r1;
+    d.gap = !d.isToday && missing > 0 && missing === dead && S.settled >= r1;          // rounds the feed never settled: told from the stats
+    const st = stats.get(date);
+    if (d.complete) { d.work = list.reduce((a, x) => a + x.w, 0); d.buckets = []; for (const x of list) { const bt = s + Math.floor((x.end - 1 - s) / HALF) * HALF; const b = d.buckets[d.buckets.length - 1]; if (b && b.t === bt) b.work += x.w; else d.buckets.push({ t: bt, work: x.w }); } }
+    else if (st) { d.work = st.work; d.buckets = st.buckets.slice(); }
+    else { d.work = NaN; d.buckets = []; }
+    d.distMm = d.work * mmw;
+    world.days.push(d);
+  }
+  // today runs ahead of the settled rounds: the live counter has the newest distance
+  const today = world.days[world.days.length - 1];
+  const m = S.status?.measurement; const liveMm = num(m?.distanceMm), obs = Date.parse(m?.observedAt);
+  if (today && today.isToday && Number.isFinite(liveMm) && obs >= today.startMs && obs < today.endMs && (!Number.isFinite(today.distMm) || liveMm > today.distMm)) { today.liveExtraMm = liveMm - (Number.isFinite(today.distMm) ? today.distMm : 0); today.distMm = liveMm; today.liveAt = obs; }
+  // positions: summed from the first round when every day is known; otherwise anchored to Squeekchain's lifetime total and counted back
+  const allKnown = world.days.every(d => Number.isFinite(d.distMm));
+  let total = NaN;
+  if (allKnown) total = world.days.reduce((a, d) => a + d.distMm, 0);
+  else if (Number.isFinite(S.lifetimeMm)) { const st = stats.get(today.date); total = S.lifetimeMm - (st && Number.isFinite(st.distMm) ? st.distMm : 0) + (Number.isFinite(today.distMm) ? today.distMm : 0); }
+  world.complete = allKnown && world.days.every(d => d.complete || d.isToday || d.settling || d.gap);
+  let end = total;
+  for (let i = world.days.length - 1; i >= 0; i--) { const d = world.days[i]; if (!Number.isFinite(end) || !Number.isFinite(d.distMm)) { d.endPos = NaN; d.startPos = NaN; end = NaN; continue; } d.endPos = end; d.startPos = end - d.distMm; end = d.startPos; }
+  world.posMm = total;
+  if (!Number.isFinite(total)) return world;
+  // landmarks with the moment each was reached
+  const lastK = Math.floor(total / LM_MM) + 6;
+  for (let k = 1; k <= lastK; k++) { const at = LM_MM * k; const lm = { k, mm: at, name: landmarkName(world, k), passed: at <= total };
+    if (lm.passed) { const d = world.days.find(x => x.startPos < at && at <= x.endPos); if (d) { lm.day = d; lm.atMs = timeAtPos(d, at); } }
+    world.landmarks.push(lm); }
+  // weekly bosses: week n covers wheel days 7n .. 7n+6 counted from the first round
+  for (let w = 0; g0 + w * 7 * DAY <= now; w++) {
+    const ws = g0 + w * 7 * DAY, we = ws + 7 * DAY; const boss = bossFor(world, w);
+    const wd = world.days.filter(d => d.startMs >= ws && d.startMs < we); let dmg = 0, defeatedAt = null, defeatedDay = null, known = true;
+    for (const d of wd) { if (!Number.isFinite(d.distMm)) { known = false; break; } if (defeatedAt == null && dmg + d.distMm >= boss.hpMm) { defeatedAt = Number.isFinite(d.startPos) ? timeAtPos(d, d.startPos + (boss.hpMm - dmg)) : d.startMs; defeatedDay = d; } dmg += d.distMm; }
+    world.weeks.push({ w, ws, we, ...boss, dmgMm: known ? dmg : NaN, known, defeatedAt: known ? defeatedAt : null, defeatedDay: known ? defeatedDay : null, done: now >= we, days: wd });
+  }
+  return world;
+}
+// The moment within a day when the runner reached position p, spreading the day's distance over its work.
+function timeAtPos(d, p){
+  const need = clamp((p - d.startPos) / Math.max(1, d.distMm), 0, 1) * (d.distMm / S.mmw);
+  let acc = 0;
+  if (d.complete) for (const x of d.rounds) { if (x.w > 0 && acc + x.w >= need) return x.end - S.d * 1000 * (1 - (need - acc) / x.w); acc += x.w; }
+  else for (const b of d.buckets) { if (b.work > 0 && acc + b.work >= need) return b.t + HALF * ((need - acc) / b.work); acc += b.work; }
+  return d.liveAt || (d.isToday ? Math.min(srvNow(), d.endMs) : d.endMs);
+}
+
+/* ---------- the words ---------- */
+// Facts always come from settled rounds, so a chapter reads the same for everyone once its day is read.
+function dayFacts(d){
+  const f = { first: null, last: null, streak: 0, streakAt: null, best: null, nap: 0, active: 0 };
+  let run = 0, runStart = null, napRun = 0, seenRun = false;
+  for (const x of d.rounds || []) {
+    if (x.w > 0) { f.active++; if (f.first == null) f.first = x.end - S.d * 1000; f.last = x.end; if (!x.batched && (!f.best || x.w > f.best.w)) f.best = x;
+      if (run === 0) runStart = x.end - S.d * 1000; run++; if (run > f.streak) { f.streak = run; f.streakAt = [runStart, x.end]; } if (seenRun) f.nap = Math.max(f.nap, napRun); napRun = 0; seenRun = true; }
+    else { run = 0; if (seenRun) napRun++; }
+  }
+  f.minutes = f.active * S.d / 60;
+  return f;
+}
+const ordinal = n => n + ((n % 100 >= 11 && n % 100 <= 13) ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
+const durTxt = min => { min = Math.round(min); if (min < 60) return min + ' minutes'; const h = Math.floor(min / 60), m = min % 60; return h + (h === 1 ? ' hour' : ' hours') + (m ? ' ' + m + ' minutes' : ''); };
+function chapterFor(world, d){
+  const r = rng('ch|' + world.inst + '|' + d.date);
+  const bStart = biomeAt(world, d.startPos), bEnd = biomeAt(world, d.endPos);
+  const f = dayFacts(d);
+  const lms = world.landmarks.filter(l => l.day === d);
+  const evs = S.meas.filter(e => e.at >= d.startMs && e.at < d.endMs).sort((a, b) => a.at - b.at);
+  const week = world.weeks.find(w => d.startMs >= w.ws && d.startMs < w.we);
+  const fell = week && week.defeatedDay === d;
+  const rec = evs.find(e => e.type === 'measurement.speed_record');
+  const paras = [];
+  // setting
+  paras.push(pick(r, [`The ${d.isToday ? 'day' : 'chapter'} opens in the ${bStart.name}.`, `Squeektoshi woke in the ${bStart.name}.`, `Morning light found the trail winding through the ${bStart.name}.`]) + ' ' + pick(r, bStart.def.flavor));
+  // the running
+  const ran = d.distMm > 0;
+  if (!ran && d.isToday) {
+    paras.push(pick(r, ['The wheel has not turned yet today. Squeektoshi is still curled up in the bedding, and the trail is waiting.', 'No running yet today. The lanterns are lit and the path is clear for whenever the wheel wakes.', 'So far the wheel is still. Most days the running starts in the evening, UTC.']));
+  } else if (!ran) {
+    paras.push(pick(r, ['The wheel never turned. Squeektoshi slept the whole day through, curled in fresh bedding.', 'A day of rest. Not a single round of running was settled on chain.', 'The trail waited. The runner did not come out that day.']));
+  } else if (f.first == null) {
+    paras.push(`The wheel is turning right now. So far today Squeektoshi has run ${fmtKm(d.distMm)}; the first round of it has not settled on chain yet.`);
+  } else {
+    let s = `The wheel first turned at ${hhmm(f.first)} UTC`;
+    if (d.isToday) s += (f.last && f.last - f.first > HALF ? `, and the latest settled round ended at ${hhmm(f.last)}.` : '.') + ` So far today, Squeektoshi has run ${fmtKm(d.distMm)}` + (f.minutes ? ` over about ${durTxt(f.minutes)} on the wheel.` : '.');
+    else s += (f.last && f.last - f.first > HALF ? ` and stopped for the last time at ${hhmm(f.last)}.` : '.') + ` By the end of the day, Squeektoshi had run ${fmtKm(d.distMm)}` + (f.minutes ? ` over about ${durTxt(f.minutes)} on the wheel.` : '.');
+    paras.push(s);
+    const bits = [];
+    if (f.streak > 1 && f.streakAt) bits.push(`The longest unbroken run lasted ${durTxt(f.streak * S.d / 60)}, from ${hhmm(f.streakAt[0])} to ${hhmm(f.streakAt[1])}.`);
+    if (f.best && f.best.w > 0) bits.push(`Round ${f.best.r} was the fiercest: ${fmtInt(f.best.w)} units of work in ten minutes.`);
+    if (f.nap >= 12) bits.push(`In between came a long nap of ${durTxt(f.nap * S.d / 60)}.`);
+    if (bits.length) paras.push(bits.join(' '));
+  }
+  // places
+  if (lms.length) paras.push((lms.length === 1 ? 'The trail passed ' : 'The trail passed ') + lms.map(l => `${l.name} at ${hhmm(l.atMs)}`).join(', ').replace(/, ([^,]*)$/, ' and $1') + '.');
+  if (bEnd.index !== bStart.index) paras.push(`Then the land changed. ${bEnd.name.replace(/^./, c => c.toUpperCase())} lay ahead. ${pick(r, bEnd.def.flavor)}`);
+  // records and milestones from Squeekchain's own measurement events
+  const ms = [];
+  for (const e of evs) {
+    if (e.type === 'measurement.distance_milestone' && num(e.p.thresholdDistanceMm) > 0) ms.push(`At ${hhmm(e.at)} the journey passed ${fmtKm(num(e.p.thresholdDistanceMm), 0)} since the very first turn.`);
+    else if (e.type === 'measurement.speed_record' && num(e.p.recordMmPerSecond) > 0) ms.push(`At ${hhmm(e.at)} came a new speed record: ${(num(e.p.recordMmPerSecond) / 1000).toFixed(2)} m/s, faster than ever before.`);
+    else if (e.type === 'measurement.distance_streak' && num(e.p.days) > 1 && num(e.p.minimumDailyDistanceMm) > 0) ms.push(`It was the ${ordinal(num(e.p.days))} day in a row of at least ${fmtKm(num(e.p.minimumDailyDistanceMm), 0)}.`);
+  }
+  const daily = evs.filter(e => e.type === 'measurement.daily_distance_milestone').map(e => num(e.p.thresholdDistanceMm)).filter(x => x > 0);
+  if (daily.length) ms.push(`The day's own distance markers fell one by one, up to ${fmtKm(Math.max(...daily), 0)}.`);
+  for (const m0 of ms) paras.push(m0);
+  // the boss
+  if (week) {
+    if (fell) paras.push(`And at ${hhmm(week.defeatedAt)} UTC, ${week.name} fell. ${fmtKm(week.hpMm, 0)} of running had worn it down.`);
+    else if (!week.defeatedAt) { const inWeek = week.days.filter(x => x.startMs <= d.startMs).reduce((a, x) => a + x.distMm, 0); const left = Math.max(0, week.hpMm - inWeek);
+      if (ran && week.known) paras.push(`Every turn struck ${week.name}. ${fmtKm(left)} of its strength ${week.done || !d.isToday ? 'remained after this day' : 'remains'}.`); }
+  }
+  // close
+  paras.push(d.isToday ? 'The day is still being written. Every settled round adds a line.' : pick(r, ['Night settled over the trail.', 'The lanterns along the path went out one by one.', 'Somewhere ahead, the next landmark waited.', 'The wheel creaked softly, and then all was quiet.']));
+  // title
+  let title;
+  if (fell) title = `The Fall of ${week.name}`;
+  else if (rec) title = 'Faster Than Ever';
+  else if (!ran) title = d.isToday ? 'Before the Run' : 'A Day of Rest';
+  else if (bEnd.index !== bStart.index) title = `Into the ${bEnd.name}`;
+  else if (lms.length) title = `Past ${lms[lms.length - 1].name}`;
+  else title = pick(r, ['The Long Road', 'Small Feet, Long Miles', 'Under the Lanterns', 'The Quiet Stretch', 'Onward', 'Whiskers to the Wind']);
+  title = title.replace(/^./, c => c.toUpperCase());
+  return { title, paras, f, lms, bStart, bEnd, fell, week };
+}
+
+/* ---------- the paintings ---------- */
+function hexRgb(h){ const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+const rgba = (h, a) => { const [r, g, b] = hexRgb(h); return `rgba(${r},${g},${b},${a})`; };
+const mix = (h1, h2, t) => { const a = hexRgb(h1), b = hexRgb(h2); return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, '0')).join(''); };
+function series(d){ const s = new Array(48).fill(0); for (const b of d.buckets) { const i = Math.floor((b.t - d.startMs) / HALF); if (i >= 0 && i < 48) s[i] += b.work; }
+  if (d.liveExtraMm > 0) { const i = clamp(Math.floor(((d.liveAt || srvNow()) - d.startMs) / HALF), 0, 47); s[i] += d.liveExtraMm / S.mmw; } // running not settled yet
+  return s; }
+function smooth(a, k){ return a.map((_, i) => { let s = 0, n = 0; for (let j = -k; j <= k; j++) { const v = a[i + j]; if (v !== undefined) { s += v; n++; } } return s / n; }); }
+const lmKind = name => name.split(' ').find(w => LM_B.includes(w)) || 'Ridge';
+
+// A small silhouette for each kind of landmark, standing on baseY with height h.
+function drawLandmark(c, kind, x, baseY, h, col){
+  c.save(); c.fillStyle = col; c.strokeStyle = col; c.lineWidth = Math.max(2, h * 0.06); c.lineCap = 'round';
+  const w = h * 0.5;
+  switch (kind) {
+    case 'Tower': case 'Spire':
+      c.fillRect(x - w * 0.22, baseY - h * 0.85, w * 0.44, h * 0.85);
+      c.beginPath(); c.moveTo(x - w * 0.32, baseY - h * 0.85); c.lineTo(x, baseY - h * (kind === 'Spire' ? 1.25 : 1.05)); c.lineTo(x + w * 0.32, baseY - h * 0.85); c.fill(); break;
+    case 'Lighthouse':
+      c.beginPath(); c.moveTo(x - w * 0.3, baseY); c.lineTo(x - w * 0.16, baseY - h * 0.9); c.lineTo(x + w * 0.16, baseY - h * 0.9); c.lineTo(x + w * 0.3, baseY); c.fill();
+      c.fillRect(x - w * 0.22, baseY - h * 1.05, w * 0.44, h * 0.15); c.fillStyle = 'rgba(255,230,150,0.9)'; c.beginPath(); c.arc(x, baseY - h * 0.97, h * 0.06, 0, 7); c.fill(); break;
+    case 'Bridge': case 'Arch':
+      c.beginPath(); c.moveTo(x - w * 1.1, baseY); c.lineTo(x - w * 1.1, baseY - h * 0.55); c.quadraticCurveTo(x, baseY - h * 0.95, x + w * 1.1, baseY - h * 0.55); c.lineTo(x + w * 1.1, baseY);
+      c.lineTo(x + w * 0.7, baseY); c.quadraticCurveTo(x, baseY - h * 0.55, x - w * 0.7, baseY); c.closePath(); c.fill(); break;
+    case 'Gate':
+      c.fillRect(x - w * 0.6, baseY - h * 0.8, w * 0.22, h * 0.8); c.fillRect(x + w * 0.38, baseY - h * 0.8, w * 0.22, h * 0.8); c.fillRect(x - w * 0.75, baseY - h * 0.92, w * 1.5, h * 0.14); break;
+    case 'Mill':
+      c.fillRect(x - w * 0.25, baseY - h * 0.6, w * 0.5, h * 0.6); c.beginPath(); c.moveTo(x - w * 0.32, baseY - h * 0.6); c.lineTo(x, baseY - h * 0.8); c.lineTo(x + w * 0.32, baseY - h * 0.6); c.fill();
+      for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2 + 0.4; c.beginPath(); c.moveTo(x, baseY - h * 0.72); c.lineTo(x + Math.cos(a) * h * 0.45, baseY - h * 0.72 + Math.sin(a) * h * 0.45); c.stroke(); } break;
+    case 'Falls':
+      c.beginPath(); c.moveTo(x - w, baseY); c.lineTo(x - w * 0.6, baseY - h * 0.9); c.lineTo(x + w * 0.6, baseY - h * 0.8); c.lineTo(x + w, baseY); c.fill();
+      c.strokeStyle = 'rgba(200,235,255,0.85)'; for (let k = -1; k <= 1; k++) { c.beginPath(); c.moveTo(x + k * w * 0.18, baseY - h * 0.82); c.lineTo(x + k * w * 0.18, baseY); c.stroke(); } break;
+    case 'Well':
+      c.fillRect(x - w * 0.35, baseY - h * 0.3, w * 0.7, h * 0.3); c.fillRect(x - w * 0.32, baseY - h * 0.75, w * 0.08, h * 0.45); c.fillRect(x + w * 0.24, baseY - h * 0.75, w * 0.08, h * 0.45);
+      c.beginPath(); c.moveTo(x - w * 0.5, baseY - h * 0.72); c.lineTo(x, baseY - h * 0.95); c.lineTo(x + w * 0.5, baseY - h * 0.72); c.fill(); break;
+    case 'Market':
+      for (let k = -1; k <= 1; k++) { const cx = x + k * w * 0.7; c.beginPath(); c.moveTo(cx - w * 0.35, baseY - h * 0.35); c.lineTo(cx, baseY - h * 0.62); c.lineTo(cx + w * 0.35, baseY - h * 0.35); c.fill(); c.fillRect(cx - w * 0.3, baseY - h * 0.35, w * 0.6, h * 0.35); } break;
+    case 'Grove': case 'Gardens': case 'Hollow':
+      for (let k = -1; k <= 1; k++) { const cx = x + k * w * 0.6, th = h * (k ? 0.6 : 0.85); c.fillRect(cx - w * 0.05, baseY - th * 0.45, w * 0.1, th * 0.45); c.beginPath(); c.arc(cx, baseY - th * 0.65, th * 0.3, 0, 7); c.fill(); } break;
+    default: // Ridge, Pass, Steps, Crossing, Ford: a cairn of stones
+      for (let k = 0; k < 4; k++) { const rr = h * (0.2 - k * 0.035); c.beginPath(); c.ellipse(x, baseY - h * 0.1 - k * h * 0.2, rr * 1.4, rr, 0, 0, 7); c.fill(); }
+  }
+  c.restore();
+}
+
+// Foreground props that make each land look like itself.
+function drawProps(c, def, W, H, r, baseY, scale){
+  c.save(); const dark = mix(def.hills[1], '#05070c', 0.45); c.fillStyle = dark; c.strokeStyle = dark;
+  const n = 7;
+  for (let i = 0; i < n; i++) {
+    const x = (i + 0.2 + r() * 0.6) / n * W, s = scale * (0.7 + r() * 0.6), y = baseY + r() * H * 0.02;
+    switch (def.prop) {
+      case 'flowers': c.lineWidth = 2 * s; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 34 * s); c.stroke(); c.fillStyle = rgba(def.accent, 0.9); c.beginPath(); c.arc(x, y - 36 * s, 6 * s, 0, 7); c.fill(); c.fillStyle = dark; break;
+      case 'mesa': c.beginPath(); c.moveTo(x - 40 * s, y); c.lineTo(x - 26 * s, y - 46 * s); c.lineTo(x + 30 * s, y - 46 * s); c.lineTo(x + 44 * s, y); c.fill(); break;
+      case 'dune': c.beginPath(); c.ellipse(x, y, 60 * s, 16 * s, 0, Math.PI, 0); c.fill(); break;
+      case 'reeds': c.lineWidth = 2.4 * s; for (let k = -2; k <= 2; k++) { c.beginPath(); c.moveTo(x + k * 5 * s, y); c.quadraticCurveTo(x + k * 7 * s, y - 25 * s, x + k * 11 * s, y - (40 + 8 * k * k) * s); c.stroke(); }
+        c.strokeStyle = rgba('#d98a4a', 0.9); c.beginPath(); c.ellipse(x + 14 * s, y - 8 * s, 9 * s, 6 * s, 0, 0, 7); c.stroke(); c.strokeStyle = dark; break;
+      case 'sunflower': c.lineWidth = 3 * s; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 70 * s); c.stroke();
+        c.fillStyle = rgba(def.accent, 0.95); for (let k = 0; k < 10; k++) { const a = k / 10 * Math.PI * 2; c.beginPath(); c.ellipse(x + Math.cos(a) * 9 * s, y - 72 * s + Math.sin(a) * 9 * s, 6 * s, 3 * s, a, 0, 7); c.fill(); }
+        c.fillStyle = dark; c.beginPath(); c.arc(x, y - 72 * s, 6 * s, 0, 7); c.fill(); break;
+      case 'bottles': c.fillStyle = rgba(def.accent, 0.55); c.fillRect(x - 6 * s, y - 26 * s, 12 * s, 26 * s); c.fillRect(x - 3 * s, y - 36 * s, 6 * s, 10 * s); c.fillStyle = dark; break;
+      case 'arches': c.lineWidth = 8 * s; c.beginPath(); c.arc(x, y, 30 * s, Math.PI, 0); c.stroke(); break;
+      case 'lanterns': c.lineWidth = 1.6 * s; c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 44 * s); c.stroke();
+        c.fillStyle = rgba(def.accent, 0.95); c.shadowColor = rgba(def.accent, 0.9); c.shadowBlur = 14 * s; c.beginPath(); c.ellipse(x, y - 50 * s, 7 * s, 9 * s, 0, 0, 7); c.fill(); c.shadowBlur = 0; c.fillStyle = dark; break;
+    }
+  }
+  c.restore();
+}
+
+function paintDay(cv, world, d, opts = {}){
+  const W = cv.width, H = cv.height, c = cv.getContext('2d'); if (!c) return;
+  const def = biomeAt(world, (d.startPos + d.endPos) / 2).def; const r = rng('paint|' + world.inst + '|' + d.date);
+  const s = series(d); const mx = Math.max(1, ...s); const k = W / 960;
+  // sky: deeper on quiet days
+  const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(def.sky[0], '#05070c', 0.35)); g.addColorStop(0.6, def.sky[0]); g.addColorStop(1, def.sky[1]); c.fillStyle = g; c.fillRect(0, 0, W, H);
+  // stars: one small cluster for every quiet half-hour
+  c.fillStyle = '#ffffff';
+  s.forEach((v, i) => { if (v === 0) for (let j = 0; j < 3; j++) { c.globalAlpha = 0.25 + r() * 0.6; c.beginPath(); c.arc((i + r()) / 48 * W, r() * H * 0.5, (0.4 + r() * 1.4) * k, 0, 7); c.fill(); } });
+  c.globalAlpha = 1;
+  // moon over the busiest half-hour
+  const peak = s.indexOf(Math.max(...s)); const mxp = (peak + 0.5) / 48 * W, myp = H * (0.16 + 0.1 * r());
+  const glow = c.createRadialGradient(mxp, myp, 0, mxp, myp, H * 0.45); glow.addColorStop(0, rgba(def.accent, d.work > 0 ? 0.42 : 0.18)); glow.addColorStop(1, rgba(def.accent, 0)); c.fillStyle = glow; c.fillRect(0, 0, W, H);
+  c.fillStyle = mix(def.accent, '#ffffff', 0.4); c.beginPath(); c.arc(mxp, myp, H * 0.055, 0, 7); c.fill();
+  c.fillStyle = mix(def.sky[0], '#000000', 0.1); c.beginPath(); c.arc(mxp + H * 0.022, myp - H * 0.012, H * 0.05, 0, 7); c.fill();
+  // the aurora: every half-hour on the wheel lights a curtain, brighter the harder it ran
+  c.save(); c.globalCompositeOperation = 'lighter';
+  const sm = smooth(s, 1);
+  for (let i = 0; i < 48; i++) { const v = sm[i] / mx; if (v <= 0.02) continue;
+    const x = i / 48 * W, w = W / 48 * 1.6; const top = H * (0.08 + (1 - v) * 0.32) + Math.sin(i * 0.7 + r() * 2) * H * 0.03; const bot = H * 0.62;
+    const ag = c.createLinearGradient(0, top, 0, bot); ag.addColorStop(0, rgba(def.accent, 0)); ag.addColorStop(0.35, rgba(def.accent, 0.32 * v)); ag.addColorStop(0.8, rgba('#7cf2c5', 0.18 * v)); ag.addColorStop(1, rgba('#7cf2c5', 0));
+    c.fillStyle = ag; c.fillRect(x - w * 0.3, top, w, bot - top);
+    c.strokeStyle = rgba('#ffffff', 0.12 * v); c.lineWidth = 1.2 * k; for (let j = 0; j < 3; j++) { const xx = x + r() * w; c.beginPath(); c.moveTo(xx, top + r() * 20 * k); c.lineTo(xx + (r() - 0.5) * 8 * k, bot); c.stroke(); } }
+  c.restore();
+  // far hills shaped by the day's running, then haze
+  const ridge = (vals, base, amp, col, jitter) => { const pts = []; c.fillStyle = col; c.beginPath(); c.moveTo(0, H);
+    for (let i = 0; i <= 48; i++) { const v = vals[Math.min(i, 47)] / mx; const y = base - v * amp - (r() - 0.5) * jitter; pts.push(y); c.lineTo(i / 48 * W, y); }
+    c.lineTo(W, H); c.closePath(); c.fill(); return pts; };
+  ridge(smooth(s, 4), H * 0.6, H * 0.26, mix(def.hills[0], def.sky[1], 0.35), H * 0.03);
+  const hz = c.createLinearGradient(0, H * 0.45, 0, H * 0.75); hz.addColorStop(0, rgba(def.sky[1], 0)); hz.addColorStop(1, rgba(def.sky[1], 0.35)); c.fillStyle = hz; c.fillRect(0, H * 0.45, W, H * 0.3);
+  ridge(smooth(s, 2), H * 0.7, H * 0.16, def.hills[0], H * 0.02);
+  // landmarks reached today stand on the near ridge
+  const lms = world.landmarks.filter(x => x.day === d);
+  for (const l of lms) { const x = clamp((l.atMs - d.startMs) / DAY, 0.04, 0.96) * W; drawLandmark(c, lmKind(l.name), x, H * 0.8, H * 0.2, mix(def.hills[1], '#05070c', 0.55)); }
+  ridge(smooth(s, 1).map(v => v * 0.5), H * 0.82, H * 0.08, def.hills[1], H * 0.015);
+  drawProps(c, def, W, H, r, H * 0.86, k);
+  // the day's climb: a glowing path that rises with the distance run, measured against a 15 km day
+  { let acc = 0; const tot = Math.max(1, s.reduce((a, v) => a + v, 0)); const rise = clamp(d.distMm / 15e6, 0.08, 1) * H * 0.3;
+    const stop = d.isToday ? clamp(Math.ceil((world.now - d.startMs) / HALF), 1, 48) : 48;
+    c.strokeStyle = rgba(def.accent, 0.9); c.lineWidth = 3.5 * k; c.shadowColor = rgba(def.accent, 0.9); c.shadowBlur = 14 * k; c.beginPath();
+    for (let i = 0; i <= stop; i++) { const x = i / 48 * W; const y = H * 0.86 - rise * (acc / tot); if (i === 0) c.moveTo(x, y); else c.lineTo(x, y); if (i < 48) acc += s[i]; }
+    c.stroke(); c.shadowBlur = 0; }
+  // ground and trail
+  const gg = c.createLinearGradient(0, H * 0.88, 0, H); gg.addColorStop(0, mix(def.hills[1], '#05070c', 0.55)); gg.addColorStop(1, '#05070c'); c.fillStyle = gg; c.fillRect(0, H * 0.88, W, H * 0.12);
+  c.strokeStyle = rgba(def.accent, 0.55); c.setLineDash([12 * k, 16 * k]); c.lineWidth = 2.5 * k; c.beginPath(); c.moveTo(0, H * 0.935); c.lineTo(W, H * 0.935); c.stroke(); c.setLineDash([]);
+  // the runner at the day's last stride
+  const f = dayFacts(d); const lastT = d.isToday ? Math.min(world.now, d.endMs) : (f.last || d.startMs + DAY / 2);
+  drawHamster(c, clamp((lastT - d.startMs) / DAY, 0.07, 0.93) * W, H * 0.935, H * 0.07, 0);
+  // vignette
+  const vg = c.createRadialGradient(W / 2, H * 0.55, H * 0.3, W / 2, H * 0.55, W * 0.7); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.45)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+  if (opts.card) {
+    const bar = c.createLinearGradient(0, 0, 0, H * 0.3); bar.addColorStop(0, 'rgba(8,11,18,0.9)'); bar.addColorStop(1, 'rgba(8,11,18,0)'); c.fillStyle = bar; c.fillRect(0, 0, W, H * 0.3);
+    c.fillStyle = '#ffc861'; c.font = `600 ${H * 0.038}px "JetBrains Mono", monospace`; c.fillText(opts.eyebrow, W * 0.04, H * 0.075);
+    c.fillStyle = '#efe9dc'; c.font = `${H * 0.08}px Gloock, Georgia, serif`; c.fillText(opts.title, W * 0.04, H * 0.17);
+    const fb = c.createLinearGradient(0, H * 0.8, 0, H); fb.addColorStop(0, 'rgba(8,11,18,0)'); fb.addColorStop(1, 'rgba(8,11,18,0.92)'); c.fillStyle = fb; c.fillRect(0, H * 0.8, W, H * 0.2);
+    c.fillStyle = '#efe9dc'; c.font = `600 ${H * 0.036}px "Instrument Sans", sans-serif`; c.fillText(opts.foot, W * 0.04, H * 0.955);
+    c.textAlign = 'right'; c.fillStyle = '#ffc861'; c.fillText('Wheelbound · Squeekchain', W * 0.96, H * 0.955); c.textAlign = 'left';
+  }
+}
+
+// Squeektoshi: a golden hamster with a white belly, pink ears and nose, facing right, feet on baseY.
+function drawHamster(c, x, baseY, s, phase){
+  const bob = Math.sin(phase) * s * 0.07, leg = Math.sin(phase * 2) * s * 0.16;
+  c.save(); c.translate(x, baseY - s * 0.62 + bob);
+  const fur = '#e3a95e', furDark = '#b97a37', belly = '#fff4e0', pink = '#f29aa6', ink = '#1a1410';
+  c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.ellipse(0, s * 0.62 - bob, s * 1.0, s * 0.12, 0, 0, 7); c.fill();       // shadow
+  c.fillStyle = pink; c.beginPath(); c.ellipse(-s * 0.45 + leg, s * 0.5, s * 0.16, s * 0.12, 0, 0, 7); c.fill(); c.beginPath(); c.ellipse(s * 0.35 - leg, s * 0.52, s * 0.16, s * 0.12, 0, 0, 7); c.fill();
+  const bg = c.createLinearGradient(0, -s * 0.6, 0, s * 0.55); bg.addColorStop(0, fur); bg.addColorStop(1, furDark);
+  c.fillStyle = bg; c.beginPath(); c.ellipse(-s * 0.1, 0, s * 0.95, s * 0.62, 0, 0, 7); c.fill();                          // body
+  c.fillStyle = belly; c.beginPath(); c.ellipse(s * 0.05, s * 0.22, s * 0.6, s * 0.34, 0, 0, 7); c.fill();                  // belly
+  c.fillStyle = fur; c.beginPath(); c.ellipse(s * 0.7, -s * 0.18, s * 0.52, s * 0.46, -0.15, 0, 7); c.fill();               // head
+  c.fillStyle = belly; c.beginPath(); c.ellipse(s * 0.88, -s * 0.02, s * 0.3, s * 0.24, 0, 0, 7); c.fill();                 // cheek
+  c.fillStyle = fur; c.beginPath(); c.arc(s * 0.5, -s * 0.6, s * 0.17, 0, 7); c.fill();                                     // ear
+  c.fillStyle = pink; c.beginPath(); c.arc(s * 0.5, -s * 0.6, s * 0.09, 0, 7); c.fill();
+  c.fillStyle = ink; c.beginPath(); c.arc(s * 0.9, -s * 0.27, s * 0.075, 0, 7); c.fill();                                   // eye
+  c.fillStyle = '#ffffff'; c.beginPath(); c.arc(s * 0.92, -s * 0.3, s * 0.025, 0, 7); c.fill();
+  c.fillStyle = pink; c.beginPath(); c.arc(s * 1.2, -s * 0.12, s * 0.06, 0, 7); c.fill();                                   // nose
+  c.strokeStyle = 'rgba(255,255,255,0.7)'; c.lineWidth = Math.max(1, s * 0.025);
+  for (const dy of [-0.14, -0.06, 0.02]) { c.beginPath(); c.moveTo(s * 1.12, -s * 0.08); c.lineTo(s * 1.45, -s * 0.08 + s * dy * 1.6); c.stroke(); }
+  c.fillStyle = furDark; c.beginPath(); c.arc(-s * 1.0, -s * 0.05, s * 0.09, 0, 7); c.fill();                               // tail
+  c.restore();
+}
+
+/* ---------- the live scene ---------- */
+let world = buildWorld(), sceneT = 0, lastFrame = performance.now();
+const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+function running(){ const m = S.status?.measurement; if (!m || m.freshness === 'stale') return 0; return Math.max(0, num(m.rpmMilli) / 1000 || 0); }
+function drawScene(ts){
+  if (document.body.classList.contains('overlay') || document.hidden) { requestAnimationFrame(drawScene); return; }
+  try {
+    const cv = $('scene'); const c = cv.getContext('2d'); if (!c) return;
+    const W = cv.width, H = cv.height; const dt = Math.min(0.1, (ts - lastFrame) / 1000); lastFrame = ts;
+    const rpm = running(); if (!reduce) sceneT += dt * (0.12 + rpm / 40);
+    const bz = biomeAt(world, world.posMm), def = bz.def; const r = rng('scene|' + world.inst + '|' + bz.index);
+    const g = c.createLinearGradient(0, 0, 0, H); g.addColorStop(0, mix(def.sky[0], '#05070c', 0.35)); g.addColorStop(0.65, def.sky[0]); g.addColorStop(1, def.sky[1]); c.fillStyle = g; c.fillRect(0, 0, W, H);
+    for (let i = 0; i < 120; i++) { const tw = reduce ? 1 : 0.7 + 0.3 * Math.sin(ts / 700 + i); c.fillStyle = `rgba(255,255,255,${(0.15 + 0.55 * r()) * tw})`; c.beginPath(); c.arc(r() * W, r() * H * 0.55, r() * 2 + 0.4, 0, 7); c.fill(); }
+    const mx = W * 0.8, my = H * 0.2; const gl = c.createRadialGradient(mx, my, 0, mx, my, H * 0.5); gl.addColorStop(0, rgba(def.accent, 0.45)); gl.addColorStop(1, rgba(def.accent, 0)); c.fillStyle = gl; c.fillRect(0, 0, W, H);
+    c.fillStyle = mix(def.accent, '#ffffff', 0.4); c.beginPath(); c.arc(mx, my, H * 0.065, 0, 7); c.fill();
+    c.fillStyle = mix(def.sky[0], '#000000', 0.1); c.beginPath(); c.arc(mx + H * 0.026, my - H * 0.014, H * 0.058, 0, 7); c.fill();
+    // a live aurora while the wheel turns
+    if (rpm > 0) { c.save(); c.globalCompositeOperation = 'lighter'; for (let i = 0; i < 24; i++) { const x = i / 24 * W, v = 0.5 + 0.5 * Math.sin(i * 0.9 + sceneT * 3);
+      const ag = c.createLinearGradient(0, H * 0.05, 0, H * 0.55); ag.addColorStop(0, rgba(def.accent, 0)); ag.addColorStop(0.5, rgba(def.accent, 0.18 * v)); ag.addColorStop(1, rgba('#7cf2c5', 0)); c.fillStyle = ag; c.fillRect(x, H * 0.05, W / 24 * 1.4, H * 0.5); } c.restore(); }
+    const layer = (speed, base, amp, freq, col, seed) => { const off = (sceneT * speed) % W; const rr = rng(seed); const ph = [rr() * 6, rr() * 6, rr() * 6];
+      c.fillStyle = col; c.beginPath(); c.moveTo(0, H);
+      for (let x = 0; x <= W; x += 8) { const u = (x + off) / W * Math.PI * 2 * freq; c.lineTo(x, base - amp * (0.5 + 0.25 * Math.sin(u + ph[0]) + 0.15 * Math.sin(u * 2.3 + ph[1]) + 0.1 * Math.sin(u * 5.1 + ph[2]))); }
+      c.lineTo(W, H); c.closePath(); c.fill(); };
+    layer(W * 0.015, H * 0.6, H * 0.3, 1.5, mix(def.hills[0], def.sky[1], 0.35), 'far|' + def.name);
+    const hz = c.createLinearGradient(0, H * 0.45, 0, H * 0.75); hz.addColorStop(0, rgba(def.sky[1], 0)); hz.addColorStop(1, rgba(def.sky[1], 0.35)); c.fillStyle = hz; c.fillRect(0, H * 0.45, W, H * 0.3);
+    // the next landmark on the horizon, growing as it gets closer
+    const next = world.landmarks.find(l => !l.passed);
+    if (next) { const left = clamp((next.mm - world.posMm) / LM_MM, 0, 1); drawLandmark(c, lmKind(next.name), W * 0.66, H * 0.72, H * (0.12 + 0.2 * (1 - left)), mix(def.hills[0], '#05070c', 0.35)); }
+    layer(W * 0.05, H * 0.78, H * 0.16, 2.5, def.hills[0], 'mid|' + def.name);
+    layer(W * 0.09, H * 0.86, H * 0.06, 3.5, def.hills[1], 'near|' + def.name);
+    c.save(); c.translate(-((sceneT * W * 0.09) % (W / 7)), 0); drawProps(c, def, W + W / 7, H, rng('props|' + def.name), H * 0.88, W / 960); c.restore();
+    const gg = c.createLinearGradient(0, H * 0.88, 0, H); gg.addColorStop(0, mix(def.hills[1], '#05070c', 0.55)); gg.addColorStop(1, '#05070c'); c.fillStyle = gg; c.fillRect(0, H * 0.88, W, H * 0.12);
+    c.strokeStyle = rgba(def.accent, 0.7); c.lineWidth = 4; c.setLineDash([24, 30]); c.lineDashOffset = (sceneT * W * 0.15) % 54; c.beginPath(); c.moveTo(0, H * 0.935); c.lineTo(W, H * 0.935); c.stroke(); c.setLineDash([]);
+    // signpost to the next landmark
+    if (next) { const sx = W * 0.86, sy = H * 0.935; c.fillStyle = '#6b4a33'; c.fillRect(sx - 4, sy - H * 0.3, 8, H * 0.3);
+      c.fillStyle = '#efe9dc'; c.beginPath(); c.moveTo(sx - W * 0.075, sy - H * 0.32); c.lineTo(sx + W * 0.06, sy - H * 0.32); c.lineTo(sx + W * 0.077, sy - H * 0.285); c.lineTo(sx + W * 0.06, sy - H * 0.25); c.lineTo(sx - W * 0.075, sy - H * 0.25); c.closePath(); c.fill();
+      c.fillStyle = '#0e1420'; c.font = `600 ${H * 0.04}px "Instrument Sans", sans-serif`; c.textAlign = 'center'; c.fillText(fmtKm(next.mm - world.posMm), sx - W * 0.005, sy - H * 0.272); c.textAlign = 'left'; }
+    drawHamster(c, W * 0.36, H * 0.935, H * 0.11, rpm > 0 && !reduce ? sceneT * 40 : 0);
+    if (rpm > 0 && !reduce) { c.strokeStyle = 'rgba(239,233,220,0.5)'; c.lineWidth = 4; for (let k = 0; k < 3; k++) { const y = H * (0.82 + k * 0.035); c.beginPath(); c.moveTo(W * 0.22 - k * 12, y); c.lineTo(W * 0.27 - k * 12, y); c.stroke(); } }
+    const vg = c.createRadialGradient(W / 2, H * 0.55, H * 0.4, W / 2, H * 0.55, W * 0.7); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.4)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
+  } catch (e) { console.error('scene', e); }
+  requestAnimationFrame(drawScene);
+}
+
+/* ---------- the Raid Table: a daily tactic game on top of the journey ---------- */
+// Tuned on the real wheel's first week: every card averages about ×1.3, and which one wins depends on how the night goes.
+const CARDS = [
+  { id:'steady', emoji:'🛡️', name:'Steady Pace', rule:'×1.3 on every metre run today.', hint:'Safe on any day.', score: x => x.dist * 1.3 },
+  { id:'owl', emoji:'🦉', name:'Night Owl', rule:'×1.6 on distance run 22:00–02:00 UTC.', hint:'The deep-night session.', score: x => x.dist + 0.6 * x.night },
+  { id:'early', emoji:'🐦', name:'Early Bird', rule:'×3.5 on distance run 04:00–09:00 UTC.', hint:'The last laps before the day.', score: x => x.dist + 2.5 * x.dawn },
+  { id:'marathon', emoji:'🛤️', name:'Marathon', rule:'×1.7 on the longest unbroken run.', hint:'Rewards one long session.', score: x => x.dist + 0.7 * x.longest },
+  { id:'sprint', emoji:'⚡', name:'Sprint', rule:'×3.5 on the fiercest half-hour.', hint:'One burst is enough.', score: x => x.dist + 2.5 * x.peak },
+  { id:'wind', emoji:'🌬️', name:'Second Wind', rule:'×3 on everything run after the longest pause between runs.', hint:'Bet on a comeback.', score: x => x.dist + 2 * x.afterNap },
+  { id:'big', emoji:'⛰️', name:'Big Day', rule:'×1.7 if today goes farther than yesterday, ×0.8 if not.', hint:'Bet on more.', score: x => !Number.isFinite(x.prev) ? x.dist : x.dist > x.prev ? x.dist * 1.7 : x.dist * 0.8, pending: x => !Number.isFinite(x.prev) || (x.open && x.dist <= x.prev) },
+  { id:'lazy', emoji:'💤', name:'Lazy Day', rule:'×1.7 if today stays shorter than yesterday, ×0.8 if not.', hint:'Bet on a nap.', score: x => !Number.isFinite(x.prev) ? x.dist : x.dist < x.prev ? x.dist * 1.7 : x.dist * 0.8, pending: x => !Number.isFinite(x.prev) || (x.open && x.dist < x.prev) },
+];
+const NO_CARD = 0.5;      // a day without a card deals half
+const TARGET = 1.4;       // the raid is won at the boss's health ×1.4
+const CARD = Object.fromEntries(CARDS.map(c => [c.id, c]));
+const CARD_ICONS = {
+  steady:'<path d="M24 6l14 5v11c0 9-6 16-14 20C16 38 10 31 10 22V11z"/>',
+  owl:'<circle cx="17" cy="22" r="7"/><circle cx="31" cy="22" r="7"/><path d="M10 14l7 3M38 14l-7 3M21 32l3 4 3-4"/>',
+  early:'<circle cx="24" cy="26" r="8"/><path d="M24 8v6M24 38v4M8 26h6M34 26h6M12 14l4 4M36 14l-4 4"/>',
+  marathon:'<path d="M14 42c4-10 16-10 16-20S22 10 26 6M22 42c4-10 16-10 16-20"/>',
+  sprint:'<path d="M27 6L13 27h10l-3 15 15-22H25z"/>',
+  wind:'<path d="M8 18h22a5 5 0 1 0-5-5M8 26h28a5 5 0 1 1-5 5M8 34h14"/>',
+  big:'<path d="M6 40l12-20 8 10 6-8 10 18z"/>',
+  lazy:'<path d="M12 14h10l-10 12h10M28 24h8l-8 10h8"/>',
+};
+const RKEY = 'wheelbound.raid.v1';
+const raidLoad = () => { try { const v = JSON.parse(localStorage.getItem(RKEY) || 'null'); return v && typeof v === 'object' && v.picks && typeof v.picks === 'object' ? v : { picks: {} }; } catch { return { picks: {} }; } };
+const raid = raidLoad();
+const raidSave = () => { try { localStorage.setItem(RKEY, JSON.stringify(raid)); } catch {} };
+// picks made in another tab: re-read before every write, and follow the other tab's writes
+function raidSync(){ const v = raidLoad(); raid.inst = v.inst; raid.picks = v.picks; }
+window.addEventListener('storage', e => { if (e.key === RKEY) { raidSync(); render(); } });
+function raidInst(){ if (S.inst && raid.inst && raid.inst !== S.inst) raid.picks = {}; if (S.inst && raid.inst !== S.inst) { raid.inst = S.inst; raidSave(); } }
+const dateOf = ms => new Date(ms - S.offsetMs).toISOString().slice(0, 10);
+const handFor = date => { const r = rng('hand|' + (S.inst || 'squeekchain') + '|' + date); const ids = CARDS.map(c => c.id);
+  for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; } return ids.slice(0, 3); };
+// The day's running as pieces in mm: settled rounds (10 minutes) once the day is read, otherwise the stats half-hours,
+// plus today's live distance that has not settled yet, spread over the time since the last settled round.
+// A batch settlement's work is spread evenly over its rounds.
+function segments(d){
+  const out = []; const mmw = S.mmw; const rd = S.d * 1000;
+  if (d.complete) {
+    const rs = d.rounds;
+    for (let i = 0; i < rs.length; i++) {
+      if (rs[i].batched) { let j = i; while (j + 1 < rs.length && rs[j + 1].batched && rs[j].w === 0) j++; const n = j - i + 1, mm = rs.slice(i, j + 1).reduce((a, x) => a + x.w, 0) * mmw / n;
+        for (let k = i; k <= j; k++) out.push({ t0: rs[k].end - rd, t1: rs[k].end, mm }); i = j; }
+      else out.push({ t0: rs[i].end - rd, t1: rs[i].end, mm: rs[i].w * mmw });
+    }
+  } else for (const b of d.buckets) out.push({ t0: b.t, t1: b.t + HALF, mm: b.work * mmw });
+  if (d.liveExtraMm > 0) {
+    const to = clamp(d.liveAt || srvNow(), d.startMs + 1, d.endMs); const act = out.filter(x => x.mm > 0 && x.t1 <= to); const last = d.complete ? (out.length ? out[out.length - 1].t1 : d.startMs) : act.length ? act[act.length - 1].t1 : Math.max(d.startMs, to - HALF);
+    const from = clamp(Math.min(last, to - 1), d.startMs, to - 1); const n = Math.max(1, Math.ceil((to - from) / rd));
+    for (let k = 0; k < n; k++) out.push({ t0: from + (to - from) * k / n, t1: from + (to - from) * (k + 1) / n, mm: d.liveExtraMm / n });
+  }
+  return out;
+}
+// The parts of a day the cards care about, in mm.
+function dayParts(d, prev){
+  const segs = segments(d);
+  const out = { dist: Number.isFinite(d.distMm) ? d.distMm : 0, night: 0, dawn: 0, longest: 0, peak: 0, afterNap: 0, open: !!d.isToday || !d.complete,
+    prev: prev ? prev.distMm : d.index === 0 ? 0 : NaN };
+  const half = new Array(48).fill(0);
+  for (const x of segs) { const h = new Date((x.t0 + x.t1) / 2).getUTCHours(); if (h >= 22 || h < 2) out.night += x.mm; if (h >= 4 && h < 9) out.dawn += x.mm;
+    half[clamp(Math.floor(((x.t0 + x.t1) / 2 - d.startMs) / HALF), 0, 47)] += x.mm; }
+  out.peak = Math.max(0, ...half);
+  const runs = []; let cur = null;
+  for (const x of segs) { if (x.mm <= 0) { cur = null; continue; } if (cur && Math.abs(cur.t1 - x.t0) < 1000) { cur.t1 = x.t1; cur.mm += x.mm; } else { cur = { t0: x.t0, t1: x.t1, mm: x.mm }; runs.push(cur); } }
+  out.longest = runs.reduce((a, r) => Math.max(a, r.mm), 0);
+  let gap = -1, at = -1; for (let i = 1; i < runs.length; i++) { const g = runs[i].t0 - runs[i - 1].t1; if (g > gap) { gap = g; at = i; } }
+  if (at > 0) out.afterNap = runs.slice(at).reduce((a, r) => a + r.mm, 0);
+  return out;
+}
+const stars = (score, dist) => dist <= 0 ? (score > 0 ? 3 : 0) : score / dist >= 1.7 ? 3 : score / dist >= 1.4 ? 2 : score / dist >= 1.15 ? 1 : 0;
+// Can a card still be picked for this wheel day? Before it starts, or while the wheel has not turned yet. Server time only.
+function pickOpen(date){
+  if (!clk.length) return false;
+  const today = world.days[world.days.length - 1]; const now = srvNow();
+  const start = Date.parse(date + 'T00:00:00Z') + S.offsetMs;
+  if (now < start) return true;
+  if (!today || today.date !== date || !today.isToday) return false;
+  return !(today.work > 0) && !(today.distMm > 0) && running() <= 0;
+}
+function pickFor(d){
+  const p = raid.picks[d.date]; if (!p || !CARD[p.card]) return null;
+  if (p.dist > 0) return { ...p, late: true };                                   // the day's distance was already counting
+  const first = (d.rounds || []).find(x => x.w > 0 || x.batched);               // a batch may have started anywhere inside it
+  if (Number.isFinite(p.at) && p.at >= d.startMs && first && p.at > first.end - S.d * 1000) return { ...p, late: true };
+  return p;
+}
+function scoreDay(d){
+  const prev = d.index > 0 ? world.days[d.index - 1] : null;
+  const x = dayParts(d, prev); const p = pickFor(d); const hand = handFor(d.date);
+  const cardId = p && !p.late ? p.card : null;
+  const score = cardId ? CARD[cardId].score(x) : x.dist * NO_CARD;
+  const best = hand.map(id => ({ id, v: CARD[id].score(x) })).sort((a, b) => b.v - a.v)[0];
+  const pending = !!cardId && (x.open || (CARD[cardId].pending ? CARD[cardId].pending(x) : false));
+  return { d, x, hand, cardId, late: !!(p && p.late), score, best, pending, stars: cardId && !pending ? stars(score, x.dist) : 0 };
+}
+let raidTab = null;
+function renderRaid(){
+  raidInst();
+  const wk = world.weeks[world.weeks.length - 1]; if (!wk) return;
+  const today = world.days[world.days.length - 1];
+  const target = Math.round(wk.hpMm * TARGET);
+  const known = d => d && Number.isFinite(d.distMm);
+  // the week strip
+  const rows = []; for (let i = 0; i < 7; i++) { const ms = wk.ws + i * DAY; const date = dateOf(ms + 1); const d = world.days.find(x => x.date === date); rows.push({ date, d, sc: known(d) ? scoreDay(d) : null }); }
+  const mine = rows.reduce((a, r) => a + (r.sc ? r.sc.score : 0), 0);
+  $('raidMine').style.width = clamp(100 * mine / target, 0, 100).toFixed(1) + '%';
+  const won = mine >= target; const reading = rows.some(r => r.d && !r.sc);
+  const playedNow = rows.some(r => r.sc && r.sc.cardId) || rows.some(r => raid.picks[r.date]);
+  $('raidMineTxt').textContent = `${fmtKm(mine)} of ${fmtKm(target, 0)}` + (reading ? ' · reading…' : won && playedNow ? ' · victory' : '');
+  $('raidAloneTxt').textContent = wk.known ? `${fmtKm(wk.dmgMm)} of ${fmtKm(wk.hpMm, 0)}` + (wk.defeatedAt ? ' · defeated' : '') : 'reading…';
+  $('raidAlone').style.width = (wk.known ? clamp(100 * wk.dmgMm / wk.hpMm, 0, 100) : 0).toFixed(1) + '%';
+  $('raidBoss').textContent = `Week ${wk.w + 1} vs ${wk.name}`;
+  const strip = $('weekStrip'); strip.innerHTML = '';
+  for (const r of rows) {
+    const cell = document.createElement('div'); cell.className = 'wday' + (today && r.date === today.date && today.isToday ? ' now' : '') + (!r.d ? ' future' : '');
+    const p = raid.picks[r.date];
+    const top = document.createElement('span'); top.className = 'k'; top.textContent = dateLabel(r.date);
+    const ic = document.createElement('span'); ic.className = 'ic'; const cid = r.sc ? r.sc.cardId : (p && CARD[p.card] ? p.card : null);
+    ic.innerHTML = cid ? `<svg viewBox="0 0 48 48" aria-hidden="true">${CARD_ICONS[cid]}</svg>` : '<span class="none">—</span>';
+    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = cid ? CARD[cid].name : (r.sc && r.sc.late ? 'picked too late' : r.d && !r.sc ? 'reading…' : r.d ? 'no card · half' : 'not dealt yet');
+    const st = document.createElement('span'); st.className = 'st'; st.setAttribute('aria-label', (r.sc ? r.sc.stars : 0) + ' stars');
+    st.textContent = r.sc && r.sc.cardId ? (r.sc.pending ? (r.d.isToday ? 'live' : 'pending') : '★'.repeat(r.sc.stars) + '☆'.repeat(3 - r.sc.stars)) : '';
+    const dm = document.createElement('span'); dm.className = 'dm'; dm.textContent = r.sc ? fmtKm(r.sc.score) : '';
+    cell.append(top, ic, nm, st, dm);
+    if (r.sc && !r.sc.x.open && r.sc.best) { const b = document.createElement('span'); b.className = 'best'; b.textContent = (r.sc.best.id === r.sc.cardId ? 'best pick ✓' : 'best: ' + CARD[r.sc.best.id].name); cell.appendChild(b); }
+    strip.appendChild(cell);
+  }
+  // the hand: today while it is still open, and tomorrow
+  const opts = [];
+  if (today && today.isToday && pickOpen(today.date)) opts.push({ date: today.date, label: 'Today' });
+  const tomorrow = dateOf((today ? today.startMs : srvNow()) + DAY + 1); if (pickOpen(tomorrow)) opts.push({ date: tomorrow, label: 'Tomorrow' });
+  if (!opts.find(o => o.date === raidTab)) raidTab = opts[0] ? opts[0].date : null;
+  const tabs = $('handTabs'); tabs.innerHTML = '';
+  for (const o of opts) { const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('aria-pressed', String(o.date === raidTab)); b.textContent = `${o.label} · ${dateLabel(o.date)}`; b.addEventListener('click', () => { raidTab = o.date; renderRaid(); }); tabs.appendChild(b); }
+  const hand = $('hand'); hand.innerHTML = '';
+  if (raidTab) {
+    const start = Date.parse(raidTab + 'T00:00:00Z') + S.offsetMs; const sel = raid.picks[raidTab] && raid.picks[raidTab].card;
+    $('handLock').textContent = srvNow() < start ? `Deal opens at 12:00 UTC · lock: when the wheel first turns that day` : 'Locks the moment the wheel first turns';
+    for (const id of handFor(raidTab)) { const c = CARD[id]; const b = document.createElement('button'); b.type = 'button'; b.className = 'card'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(sel === id));
+      b.innerHTML = `<svg viewBox="0 0 48 48" aria-hidden="true">${CARD_ICONS[id]}</svg><b></b><span class="rule"></span><span class="hint"></span>`;
+      b.querySelector('b').textContent = c.name; b.querySelector('.rule').textContent = c.rule; b.querySelector('.hint').textContent = c.hint;
+      b.addEventListener('click', () => { if (!pickOpen(raidTab)) { toast('That day is locked'); renderRaid(); return; }
+        raidSync(); raidInst(); const td = world.days[world.days.length - 1]; const dist = td && td.date === raidTab && Number.isFinite(td.distMm) ? td.distMm : 0;
+        raid.picks[raidTab] = { card: id, at: Math.round(srvNow()), dist }; raidSave(); toast(`${c.name} picked for ${dateLabel(raidTab)}`); renderRaid(); });
+      hand.appendChild(b); }
+  } else { $('handLock').textContent = ''; const p = document.createElement('p'); p.className = 'sub'; p.textContent = clk.length ? 'No hand open right now.' : 'Connecting to the wheel…'; hand.appendChild(p); }
+  // previous weeks
+  const hist = $('raidHist'); hist.innerHTML = '';
+  for (const w of world.weeks.slice(0, -1).reverse()) { let tot = 0, played = 0; const ok = w.known && w.days.every(known); if (ok) for (const d of w.days) { const sc = scoreDay(d); tot += sc.score; if (sc.cardId) played++; } const t = Math.round(w.hpMm * TARGET);
+    const li = document.createElement('li'); const a = document.createElement('span'); a.textContent = `Week ${w.w + 1} vs ${w.name}`; const b2 = document.createElement('span');
+    if (!ok) { b2.className = 'lost'; b2.textContent = 'reading…'; } else if (!played) { b2.className = 'lost'; b2.textContent = 'not played'; } else { b2.className = tot >= t ? 'won' : 'lost'; b2.textContent = `${fmtKm(tot, 0)} of ${fmtKm(t, 0)} · ${tot >= t ? 'victory' : 'escaped'} · ${played} card${played > 1 ? 's' : ''}`; }
+    li.append(a, b2); hist.appendChild(li); }
+  shareRows = { wk, rows, mine, target };
+}
+let shareRows = null;
+async function shareRaid(){
+  if (!shareRows) return; const { wk, rows, mine, target } = shareRows;
+  const lines = [`Wheelbound Raid · Week ${wk.w + 1} vs ${wk.name}`];
+  for (const r of rows) { if (!r.sc) continue; const c = r.sc.cardId ? CARD[r.sc.cardId] : null;
+    lines.push(`${dateLabel(r.date)} ${c ? c.emoji : '▫️'} ${c ? (r.sc.pending ? '⏳' : '⭐'.repeat(r.sc.stars) || '·') : '·'} ${fmtKm(r.sc.score)}`); }
+  lines.push(`Raid: ${fmtKm(mine)} / ${fmtKm(target, 0)} ${mine >= target ? '✅' : '⚔️'}`);
+  if (location.protocol.startsWith('http')) lines.push(location.href.split('#')[0]);
+  const t = lines.join('\n');
+  try { await navigator.clipboard.writeText(t); toast('Raid result copied'); }
+  catch { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Raid result copied'); } catch { toast('Copy blocked, text selected'); } setTimeout(() => ta.remove(), 4000); }
+}
+
+/* ---------- rendering ---------- */
+let toastT;
+function toast(m){ const t = $('toast'); t.textContent = m; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2400); }
+const painted = new Map();
+function render(){
+  try { renderNow(); } catch (e) { console.error('render', e); }
+}
+function renderNow(){
+  world = buildWorld();
+  const m = S.status?.measurement; const ov = document.body.classList.contains('overlay');
+  // chips
+  let feed = 'Connecting…', fd = '';
+  if (S.apiErr > 2 && Date.now() - S.statusAt > 30000) { feed = 'API unreachable, retrying'; fd = 'bad'; }
+  else if (m) { const age = (srvNow() - Date.parse(m.observedAt)) / 1000;
+    if (m.freshness === 'stale' || age > (num(m.staleAfterSeconds) || 120)) { feed = 'Wheel feed stale'; fd = 'warn'; }
+    else if (running() > 0) { feed = 'Squeektoshi is running'; fd = 'on'; } else { feed = 'Squeektoshi is resting'; fd = ''; } }
+  setText('feedTxt', feed); $('feedDot').className = 'dot ' + fd;
+  const readDays = world.days.filter(d => d.complete || d.settling || d.gap).length;
+  setText('histTxt', !world.complete && world.days.length ? `Reading the chain… ${readDays} of ${world.days.length} days` : S.settled ? 'Settled through round ' + S.settled : 'Reading the chain…');
+  $('histDot').className = 'dot ' + (!world.complete ? 'warn' : S.settled ? 'on' : '');
+  if (!world.days.length || !Number.isFinite(world.posMm)) return;
+  // hero + stats
+  const bNow = biomeAt(world, world.posMm); const next = world.landmarks.find(l => !l.passed); const passed = world.landmarks.filter(l => l.passed);
+  const today = world.days[world.days.length - 1];
+  setText('heroBiome', 'Day ' + world.days.length + ' · ' + bNow.name);
+  setText('heroWhere', passed.length ? 'Past ' + passed[passed.length - 1].name : 'At the trailhead');
+  setText('heroNext', next ? `${fmtKm(next.mm - world.posMm)} to ${next.name}` + (running() > 0 && num(m?.speedMmPerSecond) > 0 ? ` · about ${durTxt((next.mm - world.posMm) / num(m.speedMmPerSecond) / 60)} at this pace` : '') : ' ');
+  setText('stTotal', fmtKm(world.posMm)); setText('stToday', today.isToday && Number.isFinite(today.distMm) ? fmtKm(today.distMm) : '0.0 km');
+  setText('stLm', String(passed.length)); setText('stLmSub', next ? 'next: ' + next.name : 'one every 5 km');
+  const done = world.weeks.filter(w => w.done || w.defeatedAt); setText('stBoss', world.weeks.filter(w => w.defeatedAt).length + ' / ' + world.weeks.length);
+  // boss
+  const wk = world.weeks[world.weeks.length - 1];
+  if (wk && wk.known) { const left = Math.max(0, wk.hpMm - wk.dmgMm), pct = 100 * left / wk.hpMm;
+    setText('bossWeek', `Week ${wk.w + 1} · ${dateLabel(dateOfStart(wk.ws))} to ${dateLabel(dateOfStart(wk.we - DAY))}`);
+    setText('bossName', wk.name.replace(/^./, c => c.toUpperCase())); setText('bossEpi', wk.epithet);
+    $('hpFill').style.width = pct.toFixed(1) + '%'; $('hpBar').setAttribute('aria-valuenow', String(Math.round(pct)));
+    setText('hpLeft', wk.defeatedAt ? `Defeated at ${hhmm(wk.defeatedAt)} UTC on ${dateLabel(wk.defeatedDay.date)}` : `${fmtKm(left)} of ${fmtKm(wk.hpMm, 0)} left`);
+    const ms = wk.we - srvNow(); setText('hpTime', wk.defeatedAt ? 'victory' : ms > 0 ? `escapes in ${Math.floor(ms / DAY)}d ${Math.floor(ms % DAY / 3600000)}h` : 'escaped');
+    const logSig = world.weeks.map(w => w.w + ':' + w.known + ':' + !!w.defeatedAt + ':' + Math.round(w.dmgMm / 1e5)).join(',');
+    if ($('bossLog').dataset.sig !== logSig) { $('bossLog').dataset.sig = logSig; const log = $('bossLog'); log.innerHTML = '';
+      for (const w of world.weeks.slice(0, -1).reverse().slice(0, 8)) { const li = document.createElement('li'); const a = document.createElement('span'); a.textContent = `Week ${w.w + 1}: ${w.name}`; const b2 = document.createElement('span');
+        b2.className = w.defeatedAt ? 'won' : 'lost'; b2.textContent = !w.known ? 'reading…' : w.defeatedAt ? 'defeated ' + dateLabel(w.defeatedDay.date) : 'escaped (' + fmtKm(w.dmgMm, 0) + ' of ' + fmtKm(w.hpMm, 0) + ')'; li.append(a, b2); log.appendChild(li); } } }
+  if (!ov) { renderRaid(); renderTrail(next); renderChapters(); }
+  setText('foot2', `${fmtInt(S.rounds.size)} rounds read · ${world.days.length} chapters`);
+  renderOverlay(next, wk);
+}
+function setText(id, t){ const e = $(id); if (e && e.textContent !== t) e.textContent = t; }
+// The trail shows the stretch around Squeektoshi: the last landmarks passed and the next ones ahead.
+let trailScrolled = false;
+function renderTrail(next){
+  const tr = $('trail'); const lms = world.landmarks; const ni = next ? lms.indexOf(next) : lms.length;
+  const view = lms.slice(Math.max(0, ni - 8), ni + 6);
+  const sig = view.map(l => l.k + ':' + l.passed + ':' + (l.atMs || 0)).join(',') + '|' + (next ? Math.round((next.mm - world.posMm) / 1e5) : '');
+  if (tr.dataset.sig === sig) return; tr.dataset.sig = sig;
+  const keep = tr.scrollLeft; tr.innerHTML = ''; let lastBiome = -1;
+  for (const l of view) { const bz = biomeAt(world, l.mm - 1);
+    if (bz.index !== lastBiome) { lastBiome = bz.index; const e = document.createElement('div'); e.className = 'lm biome'; const k = document.createElement('span'); k.className = 'k'; k.textContent = 'from ' + fmtKm(bz.index * BIOME_MM, 0); const n = document.createElement('span'); n.className = 'n'; n.textContent = bz.name; e.append(k, n); tr.appendChild(e); }
+    const e = document.createElement('div'); e.className = 'lm' + (l.passed ? ' passed' : '') + (l === next ? ' next' : '');
+    const k = document.createElement('span'); k.className = 'k'; k.textContent = fmtKm(l.mm, 0); const n = document.createElement('span'); n.className = 'n'; n.textContent = l.name.replace(/^./, c => c.toUpperCase());
+    const dd = document.createElement('span'); dd.className = 'd'; dd.textContent = l.passed ? (l.day ? `reached ${dateLabel(l.day.date)}, ${hhmm(l.atMs)} UTC` : 'reached') : l === next ? fmtKm(l.mm - world.posMm) + ' to go' : 'ahead';
+    e.append(k, n, dd); tr.appendChild(e); }
+  if (!trailScrolled && next) { const el = tr.querySelector('.lm.next'); if (el) { tr.scrollLeft = Math.max(0, el.offsetLeft - tr.clientWidth / 2); trailScrolled = true; } } else tr.scrollLeft = keep;
+}
+// Chapters: the newest seven, more on request. A painting is redrawn only when its chapter changes.
+let chapterLimit = 7;
+function paintChapter(el){ const d = world.days.find(x => x.date === el.dataset.date); if (!d || el.dataset.painted === el.dataset.sig) return;
+  el.dataset.painted = el.dataset.sig; const cv = el.querySelector('canvas'); if (d.complete || d.isToday || ((d.settling || d.gap) && d.buckets.length)) paintDay(cv, world, d); else { const c = cv.getContext('2d'); if (c) { c.fillStyle = '#1b2537'; c.fillRect(0, 0, cv.width, cv.height); } } }
+function renderChapters(){
+  const box = $('chapters'); const all = world.days.slice().reverse(); const days = all.slice(0, chapterLimit);
+  if (box.querySelector('.loading')) box.innerHTML = '';
+  const want = new Set(days.map(d => d.date));
+  for (const el of [...box.querySelectorAll('.chapter')]) if (!want.has(el.dataset.date)) el.remove();
+  days.forEach((d, i) => {
+    const ready = d.complete || d.isToday;
+    const ch = ready ? chapterFor(world, d) : null;
+    const evN = S.meas.filter(e => e.at >= d.startMs && e.at < d.endMs).length;
+    const sig = [d.date, Math.round((d.distMm || 0) / 1000), d.work, d.rounds.length, evN, ch ? ch.lms.length : -1, ch ? ch.title : '', world.inst, d.isToday, ready, !!d.settling, !!d.gap, Math.round((d.endPos || 0) / 1e5)].join('|');
+    let el = box.querySelector(`.chapter[data-date="${d.date}"]`);
+    if (el && el.dataset.sig === sig) { if (box.children[i] !== el) box.insertBefore(el, box.children[i] || null); return; }
+    if (!el) { el = document.createElement('article'); el.dataset.date = d.date; el.className = 'chapter';
+      el.innerHTML = '<canvas width="1200" height="400" role="img"></canvas><div class="facts"><div><b data-f="km"></b><span>distance</span></div><div><b data-f="run"></b><span>on the wheel</span></div><div><b data-f="km2"></b><span>journey total</span></div></div><div class="text"><span class="eyebrow"></span><h3></h3><div class="paras"></div><div class="acts"><button class="btn" data-a="save" type="button">Save card</button><button class="btn" data-a="copy" type="button">Copy text</button></div></div>';
+      el.querySelector('[data-a="save"]').addEventListener('click', () => saveCard(el.dataset.date));
+      el.querySelector('[data-a="copy"]').addEventListener('click', () => copyText(el.dataset.date)); }
+    el.dataset.sig = sig; el.classList.toggle('today', !!d.isToday);
+    const bz = Number.isFinite(d.startPos) ? biomeAt(world, d.startPos).name : '';
+    el.querySelector('.eyebrow').textContent = `Chapter ${d.chapter} · ${dateLabel(d.date)}${d.isToday ? ' · being written' : ''}${bz ? ' · ' + bz : ''}`;
+    el.querySelector('h3').textContent = ch ? ch.title : d.settling ? 'Settling on chain…' : d.gap ? 'A Gap in the Record' : 'Still being read from the chain…';
+    const pb = el.querySelector('.paras'); pb.innerHTML = '';
+    for (const p of ch ? ch.paras : [d.settling ? 'The day is over, and its last rounds are still settling on chain. The chapter is written as soon as they land.' : d.gap ? `Some of this day's rounds never appeared in Squeekchain's settlement feed, so the chapter can't be told round by round.` + (Number.isFinite(d.distMm) ? ` The wheel's own stats count ${fmtKm(d.distMm)} for the day.` : '') : 'This chapter appears as soon as its settled rounds have been read.']) { const pe = document.createElement('p'); pe.textContent = p; pb.appendChild(pe); }
+    el.querySelector('.acts').hidden = !ch;
+    el.querySelector('[data-f="km"]').textContent = Number.isFinite(d.distMm) ? fmtKm(d.distMm) : '—';
+    el.querySelector('[data-f="run"]').textContent = ch && ch.f.minutes ? durTxt(ch.f.minutes).replace(' minutes', ' min').replace(' hours', ' h').replace(' hour', ' h') : ch ? (d.isToday ? 'not yet' : 'rest') : '—';
+    el.querySelector('[data-f="km2"]').textContent = Number.isFinite(d.endPos) ? fmtKm(d.endPos, 0) : '—';
+    el.querySelector('canvas').setAttribute('aria-label', `Painting of chapter ${d.chapter}` + (ch ? ': ' + ch.title : ''));
+    const more = box.querySelector('.more'); if (box.children[i] !== el) box.insertBefore(el, box.children[i] || more || null);
+    paintChapter(el);
+  });
+  let more = box.querySelector('.more');
+  if (all.length > chapterLimit) { if (!more) { more = document.createElement('button'); more.type = 'button'; more.className = 'btn more'; more.addEventListener('click', () => { chapterLimit += 7; render(); }); box.appendChild(more); }
+    more.textContent = `Show older chapters (${all.length - chapterLimit} more)`; box.appendChild(more); } else if (more) more.remove();
+}
+function chapterTextFor(date){ const d = world.days.find(x => x.date === date); if (!d) return null; const ch = chapterFor(world, d);
+  return { d, ch, text: `Wheelbound · Chapter ${d.chapter} (${dateLabel(d.date)}): ${ch.title}\n\n${ch.paras.join('\n\n')}\n\n${location.origin === 'null' ? '' : location.href.split('#')[0]}` }; }
+async function copyText(date){ const x = chapterTextFor(date); if (!x) return;
+  try { await navigator.clipboard.writeText(x.text); toast('Chapter copied'); }
+  catch { const ta = document.createElement('textarea'); ta.value = x.text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('Chapter copied'); } catch { toast('Copy blocked, text selected'); } setTimeout(() => ta.remove(), 4000); } }
+function saveCard(date){ const x = chapterTextFor(date); if (!x) return;
+  const cv = document.createElement('canvas'); cv.width = 1200; cv.height = 630;
+  paintDay(cv, world, x.d, { card: true, eyebrow: `CHAPTER ${x.d.chapter} · ${dateLabel(x.d.date).toUpperCase()} · ${x.ch.bStart.name.toUpperCase()}`, title: x.ch.title, foot: `${fmtKm(x.d.distMm)} run · ${fmtKm(x.d.endPos, 0)} journey total` });
+  cv.toBlob(b => { if (!b) { toast('Could not make the card'); return; } const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `wheelbound-chapter-${x.d.chapter}.png`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000); toast('Card saved'); }, 'image/png'); }
+function renderOverlay(next, wk){
+  const today = world.days[world.days.length - 1];
+  $('ovState').textContent = running() > 0 ? 'running' : 'resting';
+  $('ovWhere').textContent = biomeAt(world, world.posMm).name; $('ovToday').textContent = 'today ' + (today && today.isToday ? fmtKm(today.distMm) : '0.0 km');
+  if (next) { const prev = next.mm - LM_MM; $('ovLm').style.width = clamp(100 * (world.posMm - prev) / LM_MM, 0, 100).toFixed(1) + '%'; $('ovLmTxt').textContent = `${fmtKm(next.mm - world.posMm)} to ${next.name}`; }
+  if (wk) { const left = Math.max(0, wk.hpMm - wk.dmgMm); $('ovBoss').style.width = (100 * left / wk.hpMm).toFixed(1) + '%'; $('ovBossTxt').textContent = wk.defeatedAt ? `${wk.name} defeated` : `${wk.name}: ${fmtKm(left)} left`; }
+}
+
+/* ---------- boot and polling ---------- */
+function applyMode(){ const o = location.hash === '#overlay'; document.body.classList.toggle('overlay', o); document.documentElement.classList.toggle('overlay', o); }
+window.addEventListener('hashchange', applyMode); applyMode();
+const ovLink = () => location.href.split('#')[0] + '#overlay';
+$('ovUrl').textContent = ovLink();
+$('raidShare').addEventListener('click', shareRaid);
+$('ovCopy').addEventListener('click', async () => { const t = ovLink();
+  try { await navigator.clipboard.writeText(t); toast('Overlay link copied'); }
+  catch { const r = document.createRange(); r.selectNodeContents($('ovUrl')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('Link selected, copy it with Ctrl+C'); } });
+async function safe(fn){ try { await fn(); S.apiErr = 0; return true; } catch (e) { S.apiErr++; return false; } }
+const busy = {};
+async function once(name, fn){ if (busy[name]) return false; busy[name] = true; try { return await safe(fn); } finally { busy[name] = false; } }
+async function afterInstChange(){ if (!S.instChanged) return; S.instChanged = false; await once('core', loadCore); await once('stats', loadStats); await once('meas', loadMeas); }
+function startTimers(){
+  setInterval(async () => { await once('status', loadStatus); await afterInstChange(); render(); }, 10000);
+  setInterval(async () => { await once('hist', () => loadHistory(30, render)); await afterInstChange(); render(); }, 60000);
+  setInterval(async () => { await once('stats', loadStats); render(); }, 5 * 60000);
+  setInterval(async () => { await once('meas', loadMeas); render(); }, 10 * 60000);
+  setInterval(async () => { if (!S.statsDays.length) await once('stats', loadStats); if (!Number.isFinite(S.g)) await once('core', loadCore); render(); }, 15000);
+}
+async function boot(){
+  startTimers();
+  requestAnimationFrame(drawScene);
+  render();
+  await Promise.all([once('core', loadCore), once('status', loadStatus), once('stats', loadStats), once('meas', loadMeas)]);
+  S.ready = true; render();
+  await once('hist', () => loadHistory(400, render));
+  render();
+}
+window.__wb = { S, CARDS, CARD, handFor, dayParts, scoreDay, pickOpen, raid, get world(){ return world; }, buildWorld, chapterFor, dayFacts, timeAtPos, biomeAt, landmarkName, bossFor, hash, rng, applySettlement };
+boot();
+})();
+</script>
+</body>
+</html>
