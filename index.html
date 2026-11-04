@@ -58,6 +58,7 @@ header.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items
 .hero-cap{position:absolute;left:0;right:0;bottom:0;padding:18px 20px;display:flex;flex-wrap:wrap;gap:10px 28px;align-items:flex-end;
   background:linear-gradient(to top,rgba(10,14,22,.92),rgba(10,14,22,0))}
 .hero-cap .where{min-width:0;flex:1 1 280px}
+@media (max-width:640px){.hero-cap{position:static;background:var(--panel);padding:14px 16px}}
 .hero-cap .where b{display:block;font-family:var(--f-display);font-weight:400;font-size:clamp(22px,3.2vw,32px);line-height:1.1}
 .hero-cap .where span{color:var(--muted);font-size:14px}
 @media (max-width:640px){
@@ -102,6 +103,26 @@ header.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items
 .wday .st{color:var(--lantern);font-size:13px;letter-spacing:.05em}
 .wday .dm{font-family:var(--f-mono);font-size:12px}
 .wday .best{font-size:11px;color:var(--muted);line-height:1.2}
+.wallet{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:20px 0 2px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel-2)}
+.wallet .wbtns{display:flex;flex-wrap:wrap;gap:8px}
+.wallet .wstate{font-size:13px;color:var(--muted);min-width:0;flex:1 1 260px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.wallet .addr{font-family:var(--f-mono);font-size:13px;color:var(--fg)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);font-family:var(--f-mono);font-size:11px;white-space:nowrap}
+.badge.ok{border-color:color-mix(in srgb,var(--moss) 55%,var(--line));color:var(--moss)}
+.badge.warn{border-color:color-mix(in srgb,var(--lantern) 55%,var(--line));color:var(--lantern)}
+.badge.bad{border-color:color-mix(in srgb,var(--ember) 55%,var(--line));color:var(--ember)}
+.btn.primary{background:var(--lantern);color:#1a1405;border-color:var(--lantern)}
+.strikes{margin-top:20px}
+.strikes-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;margin-bottom:8px}
+.strike-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.strike-list li{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,.7fr) minmax(0,1.1fr) auto;gap:4px 12px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);font-size:13px}
+.strike-list li.rest{opacity:.6}
+.strike-list .r{font-family:var(--f-mono);font-size:12px;overflow-wrap:anywhere}
+.strike-list .hit{color:var(--lantern);font-weight:600}
+.strike-list .tx{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.strike-list .tx a{font-family:var(--f-mono);font-size:12px}
+.sub.small{font-size:12px;margin:8px 0 0}
+@media (max-width:640px){.strike-list li{grid-template-columns:minmax(0,1fr) auto}.strike-list .tx{grid-column:1 / -1;justify-content:flex-start}}
 .raid-foot{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-start;margin-top:16px}
 .raid-foot .boss-log{margin:0;flex:1 1 300px}
 
@@ -215,16 +236,22 @@ body.overlay .ov-prev{padding:0;background:none}
       <div class="raid-intro">
         <span class="label" id="raidBoss">The Raid Table</span>
         <h2 id="raidH">Play the week against the boss</h2>
-        <p class="sub">Every wheel day, everyone is dealt the same three tactic cards. Pick one before the wheel first turns. Squeektoshi's real running, shaped by your card, is your damage; a day without a card deals only half. Beat the boss's health ×1.4 by the end of the week.</p>
+        <p class="sub">Every wheel day, everyone is dealt the same three tactic cards. Pick one before the wheel first turns. Squeektoshi's real running, shaped by your card, is your damage, one settled round at a time; a day without a card deals only half. Beat the boss's health ×1.4 by the end of the week.</p>
       </div>
       <div class="raid-bars">
         <div class="rb"><div class="rb-l"><span>Your raid</span><span id="raidMineTxt" class="num">—</span></div><div class="hp"><i id="raidMine" class="mine" style="width:0%"></i></div></div>
         <div class="rb"><div class="rb-l"><span>Squeektoshi alone</span><span id="raidAloneTxt" class="num">—</span></div><div class="hp"><i id="raidAlone" style="width:0%"></i></div></div>
       </div>
     </div>
+    <div class="wallet" id="wallet" aria-live="polite"><div class="wbtns" id="wBtns"></div><span class="wstate" id="wState">Checking for a wallet…</span></div>
     <div class="hand-head"><div class="tabs" id="handTabs" role="group" aria-label="Which day to pick for"></div><span class="label" id="handLock"></span></div>
     <div class="hand" id="hand" role="radiogroup" aria-label="Tactic cards"></div>
     <div class="week" id="weekStrip" aria-label="This week"></div>
+    <div class="strikes">
+      <div class="strikes-head"><span class="label">Round by round · every settled round is a hit</span><span class="label" id="roundNow"></span></div>
+      <ol class="strike-list" id="strikes" aria-label="The latest settled rounds"></ol>
+      <p class="sub small" id="strikeNote">Each round links its settlement transaction on Sepolia. ✓ means this page read that transaction back from Sepolia itself and it matches.</p>
+    </div>
     <div class="raid-foot"><button class="btn" id="raidShare" type="button">Share this week</button><ul class="boss-log" id="raidHist"></ul></div>
   </section>
 
@@ -282,6 +309,7 @@ body.overlay .ov-prev{padding:0;background:none}
   <footer>
     <span id="srcTxt">Data: api.squeekchain.com</span>
     <span id="foot2">&nbsp;</span>
+    <a id="coreLink" href="https://sepolia.etherscan.io/" target="_blank" rel="noopener" hidden>SqueekCore on Sepolia</a>
     <a href="https://squeekchain.com/" target="_blank" rel="noopener">squeekchain.com</a>
   </footer>
 </div>
@@ -369,7 +397,7 @@ const store = {
 const S = {
   inst: null, g: NaN, d: 600, offsetMs: 12 * 3600000, mmw: MM_PER_WORK_DEFAULT,
   statsDays: [], lifetimeMm: NaN, statsAt: 0,
-  rounds: new Map(), batched: new Set(), dead: new Set(), walks: [], histPaging: false, settled: 0,
+  rounds: new Map(), batched: new Set(), dead: new Set(), tx: new Map(), ids: {}, walks: [], histPaging: false, settled: 0,
   meas: [], status: null, statusAt: 0, apiErr: 0, ready: false, coreAt: 0,
 };
 // rounds are stored as runs: [[firstRound, "w,w,w,…"], …]
@@ -382,6 +410,8 @@ function encodeRounds(){ const ks = [...S.rounds.keys()].sort((a, b) => a - b); 
     run[1].split(',').forEach((w, i) => { const W = +w, R = run[0] + i; if (R > 0 && Number.isFinite(W) && W >= 0) S.rounds.set(R, W); }); }
   if (Array.isArray(c.batched)) for (const r of c.batched) if (Number.isInteger(r)) S.batched.add(r);
   if (Array.isArray(c.dead)) for (const r of c.dead) if (Number.isInteger(r) && !S.rounds.has(r)) S.dead.add(r);
+  if (Array.isArray(c.tx)) for (const t of c.tx) if (Array.isArray(t) && Number.isInteger(t[0]) && /^0x[0-9a-fA-F]{64}$/.test(t[1])) S.tx.set(t[0], { tx: t[1], a: t[2], act: t[3], cum: t[4], w: t[5] });
+  if (c.ids && typeof c.ids === 'object') for (const k of ['core', 'token', 'genesis']) if (/^0x[0-9a-fA-F]{40}$/.test(c.ids[k])) S.ids[k] = c.ids[k];
   if (Array.isArray(c.walks)) S.walks = c.walks.filter(w => w && (w.cursor === null || typeof w.cursor === 'string') && Number.isInteger(w.stopAt))
     .map(w => ({ cursor: w.cursor, stopAt: w.stopAt, at: Number.isInteger(w.at) ? w.at : null }));
 })();
@@ -390,7 +420,7 @@ function persist(){
   const c = store.get();
   if (c && c.v === 2 && c.inst === S.inst && Array.isArray(c.runs)) for (const run of c.runs) { if (!Array.isArray(run) || !Number.isInteger(run[0]) || typeof run[1] !== 'string') continue;
     run[1].split(',').forEach((w, i) => { const W = +w, R = run[0] + i; if (R > 0 && Number.isFinite(W) && W >= 0 && !S.rounds.has(R)) { S.rounds.set(R, W); if (Array.isArray(c.batched) && c.batched.includes(R)) S.batched.add(R); } }); }
-  store.set({ v: 2, inst: S.inst, runs: encodeRounds(), batched: [...S.batched], dead: [...S.dead].slice(-2000), walks: S.walks.map(w => ({ cursor: w.cursor, stopAt: w.stopAt, at: w.at })) }); }
+  store.set({ v: 2, inst: S.inst, runs: encodeRounds(), batched: [...S.batched], dead: [...S.dead].slice(-2000), tx: [...S.tx.entries()].sort((x, y) => y[0] - x[0]).slice(0, 300).map(([b, t]) => [b, t.tx, t.a, t.act, t.cum, t.w]), ids: S.ids, walks: S.walks.map(w => ({ cursor: w.cursor, stopAt: w.stopAt, at: w.at })) }); }
 // Server time: the status snapshot's generatedAt carried forward on the monotonic clock, so changing the computer's clock
 // changes nothing. The snapshot can be a little old, so the newest-looking of the recent samples wins.
 const clk = [];
@@ -398,7 +428,7 @@ function noteServerTime(gen){ const t = Date.parse(gen); if (!Number.isFinite(t)
 const srvNow = () => clk.length ? Math.max(...clk) + performance.now() : Date.now();
 // A new game installation restarts everything: rounds, history paging, round config.
 function checkInst(id){ if (typeof id !== 'string' || !id) return;
-  if (S.inst && S.inst !== id) { S.rounds.clear(); S.batched.clear(); S.dead.clear(); S.walks = []; S.meas = []; S.settled = 0; S.g = NaN; S.statsDays = []; S.lifetimeMm = NaN; S.instChanged = true; }
+  if (S.inst && S.inst !== id) { S.rounds.clear(); S.batched.clear(); S.dead.clear(); S.tx.clear(); S.ids = {}; S.walks = []; S.meas = []; S.settled = 0; S.g = NaN; S.statsDays = []; S.lifetimeMm = NaN; S.instChanged = true; }
   S.inst = id; }
 
 async function getJSON(path){
@@ -451,6 +481,15 @@ async function loadMeas(){
   }
   S.meas = all;
 }
+const isAddr = a => typeof a === 'string' && /^0x[0-9a-fA-F]{40}$/.test(a);
+const isHash = h => typeof h === 'string' && /^0x[0-9a-fA-F]{64}$/.test(h);
+// Squeekchain's contracts on Sepolia, as the API names them
+function noteIds(ids){ if (!ids || typeof ids !== 'object') return; for (const k of ['core', 'token', 'genesis']) if (isAddr(ids[k])) S.ids[k] = ids[k]; }
+// the settlement transaction behind each of the newest rounds, so every hit can be checked on Sepolia
+function noteTx(e){ const src = e.source, p = e.payload; const b = num(p.settledThroughRound);
+  if (!src || !isHash(src.transactionHash) || !Number.isInteger(b)) return;
+  S.tx.set(b, { tx: src.transactionHash, a: num(p.previousSettledThroughRound), act: num(p.activeRoundCount), cum: num(p.cumulativeWork), w: num(p.workAdded) });
+  if (S.tx.size > 300) S.tx.delete(Math.min(...S.tx.keys())); }
 function applySettlement(p){
   const a = num(p.previousSettledThroughRound), b = num(p.settledThroughRound), act = num(p.activeRoundCount), w = num(p.workAdded);
   if (!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b <= a || b - a > 5000) return null;
@@ -486,12 +525,13 @@ async function loadHistory(budget, onPage){
       catch (e) { if (S.walks !== walks) break; if ([400, 404, 410].includes(e.status)) { walkFailed(w, true); pages++; continue; } throw e; } // 429 and 5xx: wait for the next pass
       if (S.walks !== walks) break;
       checkInst(j?.installationId); if (S.walks !== walks) break;                   // a new installation reset the history
+      noteIds(j?.identities);
       pages++;
       let min = Infinity; const evs = Array.isArray(j?.events) ? j.events : [];
       const fromTop = w.cursor === null;
       for (const e of evs) {
         if (!e || e.type !== 'system.settlement_completed' || !e.payload || typeof e.payload !== 'object') continue;
-        const lo = applySettlement(e.payload); if (lo != null) { min = Math.min(min, lo); if (fromTop && w.at === null) w.hi = Math.max(w.hi || 0, num(e.payload.settledThroughRound)); }
+        const lo = applySettlement(e.payload); if (lo != null) { min = Math.min(min, lo); noteTx(e); if (fromTop && w.at === null) w.hi = Math.max(w.hi || 0, num(e.payload.settledThroughRound)); }
       }
       if (Number.isFinite(min)) w.at = w.at === null ? min : Math.min(w.at, min);
       const next = typeof j?.nextCursor === 'string' && j.nextCursor ? j.nextCursor : null;
@@ -845,8 +885,8 @@ function drawScene(ts){
     if (next) { const sx = W * 0.86, sy = H * 0.935; c.fillStyle = '#6b4a33'; c.fillRect(sx - 4, sy - H * 0.3, 8, H * 0.3);
       c.fillStyle = '#efe9dc'; c.beginPath(); c.moveTo(sx - W * 0.075, sy - H * 0.32); c.lineTo(sx + W * 0.06, sy - H * 0.32); c.lineTo(sx + W * 0.077, sy - H * 0.285); c.lineTo(sx + W * 0.06, sy - H * 0.25); c.lineTo(sx - W * 0.075, sy - H * 0.25); c.closePath(); c.fill();
       c.fillStyle = '#0e1420'; c.font = `600 ${H * 0.04}px "Instrument Sans", sans-serif`; c.textAlign = 'center'; c.fillText(fmtKm(next.mm - world.posMm), sx - W * 0.005, sy - H * 0.272); c.textAlign = 'left'; }
-    drawHamster(c, W * 0.36, H * 0.935, H * 0.11, rpm > 0 && !reduce ? sceneT * 40 : 0);
-    if (rpm > 0 && !reduce) { c.strokeStyle = 'rgba(239,233,220,0.5)'; c.lineWidth = 4; for (let k = 0; k < 3; k++) { const y = H * (0.82 + k * 0.035); c.beginPath(); c.moveTo(W * 0.22 - k * 12, y); c.lineTo(W * 0.27 - k * 12, y); c.stroke(); } }
+    drawHamster(c, W * 0.53, H * 0.935, H * 0.11, rpm > 0 && !reduce ? sceneT * 40 : 0);
+    if (rpm > 0 && !reduce) { c.strokeStyle = 'rgba(239,233,220,0.5)'; c.lineWidth = 4; for (let k = 0; k < 3; k++) { const y = H * (0.82 + k * 0.035); c.beginPath(); c.moveTo(W * 0.39 - k * 12, y); c.lineTo(W * 0.44 - k * 12, y); c.stroke(); } }
     const vg = c.createRadialGradient(W / 2, H * 0.55, H * 0.4, W / 2, H * 0.55, W * 0.7); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,0.4)'); c.fillStyle = vg; c.fillRect(0, 0, W, H);
   } catch (e) { console.error('scene', e); }
   requestAnimationFrame(drawScene);
@@ -878,13 +918,17 @@ const CARD_ICONS = {
   lazy:'<path d="M12 14h10l-10 12h10M28 24h8l-8 10h8"/>',
 };
 const RKEY = 'wheelbound.raid.v1';
-const raidLoad = () => { try { const v = JSON.parse(localStorage.getItem(RKEY) || 'null'); return v && typeof v === 'object' && v.picks && typeof v.picks === 'object' ? v : { picks: {} }; } catch { return { picks: {} }; } };
+const raidLoad = () => { let v = null; try { v = JSON.parse(localStorage.getItem(RKEY) || 'null'); } catch {}
+  if (!v || typeof v !== 'object' || !v.picks || typeof v.picks !== 'object') v = { picks: {} };
+  if (!v.wallets || typeof v.wallets !== 'object') v.wallets = {}; return v; };
 const raid = raidLoad();
 const raidSave = () => { try { localStorage.setItem(RKEY, JSON.stringify(raid)); } catch {} };
 // picks made in another tab: re-read before every write, and follow the other tab's writes
-function raidSync(){ const v = raidLoad(); raid.inst = v.inst; raid.picks = v.picks; }
+function raidSync(){ const v = raidLoad(); raid.inst = v.inst; raid.picks = v.picks; raid.wallets = v.wallets; }
+// guests keep their picks on this device; a connected wallet has its own, signed picks
+function myPicks(){ const k = Wal.addr ? Wal.addr.toLowerCase() : null; if (!k) return raid.picks; if (!raid.wallets[k] || typeof raid.wallets[k] !== 'object') raid.wallets[k] = {}; return raid.wallets[k]; }
 window.addEventListener('storage', e => { if (e.key === RKEY) { raidSync(); render(); } });
-function raidInst(){ if (S.inst && raid.inst && raid.inst !== S.inst) raid.picks = {}; if (S.inst && raid.inst !== S.inst) { raid.inst = S.inst; raidSave(); } }
+function raidInst(){ if (S.inst && raid.inst && raid.inst !== S.inst) { raid.picks = {}; raid.wallets = {}; } if (S.inst && raid.inst !== S.inst) { raid.inst = S.inst; raidSave(); } }
 const dateOf = ms => new Date(ms - S.offsetMs).toISOString().slice(0, 10);
 const handFor = date => { const r = rng('hand|' + (S.inst || 'squeekchain') + '|' + date); const ids = CARDS.map(c => c.id);
   for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; } return ids.slice(0, 3); };
@@ -935,7 +979,7 @@ function pickOpen(date){
   return !(today.work > 0) && !(today.distMm > 0) && running() <= 0;
 }
 function pickFor(d){
-  const p = raid.picks[d.date]; if (!p || !CARD[p.card]) return null;
+  const p = myPicks()[d.date]; if (!p || !CARD[p.card]) return null;
   if (p.dist > 0) return { ...p, late: true };                                   // the day's distance was already counting
   const first = (d.rounds || []).find(x => x.w > 0 || x.batched);               // a batch may have started anywhere inside it
   if (Number.isFinite(p.at) && p.at >= d.startMs && first && p.at > first.end - S.d * 1000) return { ...p, late: true };
@@ -950,6 +994,183 @@ function scoreDay(d){
   const pending = !!cardId && (x.open || (CARD[cardId].pending ? CARD[cardId].pending(x) : false));
   return { d, x, hand, cardId, late: !!(p && p.late), score, best, pending, stars: cardId && !pending ? stars(score, x.dist) : 0 };
 }
+/* ---------- Sepolia: the wallet, and reading the chain itself ---------- */
+const SEPOLIA = '0xaa36a7';
+const RPCS = ['https://ethereum-sepolia-rpc.publicnode.com', 'https://1rpc.io/sepolia'];
+const short = a => a.slice(0, 6) + '…' + a.slice(-4);
+const scan = (kind, v) => `https://sepolia.etherscan.io/${kind}/${v}`;
+let rpcId = 1;
+async function rpc(method, params){
+  let last = null;
+  for (const u of RPCS) {
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 10000);
+    try { const r = await fetch(u, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method, params }), signal: ctl.signal });
+      const j = await r.json(); if (j && typeof j === 'object' && 'result' in j) return j.result; last = new Error((j && j.error && j.error.message) || 'rpc'); }
+    catch (e) { last = e; } finally { clearTimeout(to); }
+  }
+  throw last || new Error('rpc');
+}
+const word = (data, i) => { const w = typeof data === 'string' ? data.slice(2 + 64 * i, 2 + 64 * (i + 1)) : ''; return /^[0-9a-fA-F]{64}$/.test(w) ? Number(BigInt('0x' + w)) : NaN; };
+// A settled round is checked on Sepolia itself. Each settlement's own log on SqueekCore must name the same rounds, the same
+// number of active rounds and the same running total of work as the API; a round's work is then the difference between
+// its settlement's total and the previous settlement's total, both read from Sepolia. Only then does the row get its ✓.
+const verified = new Map();   // tx -> { state: 'wait' | 'ok' | 'bad' | 'err', cum, block, at }
+let verifying = false;
+async function verifyRecent(){
+  if (verifying || !isAddr(S.ids.core) || document.body.classList.contains('overlay')) return; verifying = true;
+  try {
+    const keep = new Set([...S.tx.values()].map(t => t.tx)); for (const k of verified.keys()) if (!keep.has(k)) verified.delete(k);
+    const due = [...S.tx.entries()].sort((x, y) => y[0] - x[0]).slice(0, 14)
+      .filter(([, t]) => { const v = verified.get(t.tx); return !v || (v.state === 'err' && Date.now() - v.at > 60000); }).slice(0, 6);
+    for (const [b, t] of due) {
+      verified.set(t.tx, { state: 'wait', at: Date.now() });
+      try {
+        const rc = await rpc('eth_getTransactionReceipt', [t.tx]);
+        if (!rc || !Array.isArray(rc.logs)) { verified.set(t.tx, { state: 'err', at: Date.now() }); continue; }   // this node has not seen it yet
+        const core = S.ids.core.toLowerCase();
+        const l = rc.logs.find(x => x && String(x.address).toLowerCase() === core && Array.isArray(x.topics) && x.topics.length === 4 && /^0x[0-9a-fA-F]{1,64}$/.test(x.topics[3]) && Number(BigInt(x.topics[3])) === b);
+        const cum = l ? word(l.data, 3) : NaN;
+        const ok = rc.status === '0x1' && !!l && word(l.data, 1) === t.a && word(l.data, 2) === t.act && Number.isFinite(t.cum) && cum === t.cum;
+        verified.set(t.tx, { state: ok ? 'ok' : 'bad', cum, block: parseInt(rc.blockNumber, 16), at: Date.now() });
+      } catch { verified.set(t.tx, { state: 'err', at: Date.now() }); }
+    }
+  } finally { verifying = false; }
+}
+// the check state of one settled round, as shown in its row
+function roundCheck(b){
+  const t = S.tx.get(b); if (!t) return null; if (!isAddr(S.ids.core) || !Number.isFinite(t.cum) || !Number.isFinite(t.w)) return { t, state: 'err' };
+  const v = verified.get(t.tx); if (!v || v.state === 'wait') return { t, state: 'wait' }; if (v.state !== 'ok') return { t, state: v.state };
+  let prev = 0; if (t.a > 0) { const pt = S.tx.get(t.a); const pv = pt && verified.get(pt.tx); if (!pt) return { t, state: 'err' }; if (!pv || pv.state === 'wait') return { t, state: 'wait' }; if (pv.state !== 'ok') return { t, state: pv.state }; prev = pv.cum; }
+  return { t, state: v.cum - prev === t.w ? 'ok' : 'bad', block: v.block };
+}
+// Wallets: any EIP-6963 wallet (MetaMask, Rabby, …), or the injected one. Nothing here ever sends a transaction.
+const WKEY = 'wheelbound.wallet.v1';
+const Wal = { list: [], prov: null, info: null, addr: null, chain: null, sqk: null, squeeks: null, choosing: false, busy: false, note: '' };
+const bound = new WeakSet();
+window.addEventListener('eip6963:announceProvider', e => { const d = e.detail;
+  if (d && d.provider && typeof d.provider.request === 'function' && d.info && typeof d.info.name === 'string' && !Wal.list.some(p => p.info.uuid === d.info.uuid)) { Wal.list.push(d); renderWallet(); setTimeout(quietReconnect, 0); } });
+try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch {}
+function wallets(){ const l = Wal.list.slice(); if (!l.length && window.ethereum && typeof window.ethereum.request === 'function') l.push({ info: { name: 'Browser wallet', rdns: 'injected', uuid: 'injected' }, provider: window.ethereum }); return l; }
+const wget = () => { try { const v = JSON.parse(localStorage.getItem(WKEY) || 'null'); return v && typeof v.rdns === 'string' ? v : null; } catch { return null; } };
+const wset = v => { try { v ? localStorage.setItem(WKEY, JSON.stringify(v)) : localStorage.removeItem(WKEY); } catch {} };
+async function useWallet(w, ask){
+  const pr = w.provider;
+  if (!bound.has(pr) && typeof pr.on === 'function') { bound.add(pr);
+    pr.on('accountsChanged', a => { if (Wal.prov !== pr) return; const nx = Array.isArray(a) && isAddr(a[0]) ? a[0] : null; if ((nx || '').toLowerCase() !== (Wal.addr || '').toLowerCase()) { Wal.sqk = null; Wal.squeeks = null; } Wal.addr = nx; if (!Wal.addr) wset(null); loadHoldings(); render(); });
+    pr.on('chainChanged', c => { if (Wal.prov !== pr) return; Wal.chain = typeof c === 'string' ? c.toLowerCase() : null; render(); }); }
+  const accts = await pr.request({ method: ask ? 'eth_requestAccounts' : 'eth_accounts' });
+  if (!Array.isArray(accts) || !isAddr(accts[0])) { if (ask) throw new Error('no account'); return false; }
+  if ((Wal.addr || '').toLowerCase() !== accts[0].toLowerCase()) { Wal.sqk = null; Wal.squeeks = null; }
+  Wal.prov = pr; Wal.info = w.info; Wal.addr = accts[0]; Wal.choosing = false;
+  try { const c = await pr.request({ method: 'eth_chainId' }); Wal.chain = typeof c === 'string' ? c.toLowerCase() : null; } catch { Wal.chain = null; }
+  wset({ rdns: w.info.rdns || 'injected' }); loadHoldings(); return true;
+}
+async function connectWallet(w){
+  if (Wal.busy) return; Wal.busy = true; Wal.note = ''; renderWallet();
+  try { await useWallet(w, true); if (Wal.chain !== SEPOLIA) { try { await switchSepolia(); } catch {} } toast(Wal.chain === SEPOLIA ? 'Wallet connected on Sepolia' : 'Wallet connected; switch it to Sepolia'); }
+  catch (e) { Wal.note = e && e.code === 4001 ? 'Connection cancelled in the wallet.' : 'The wallet did not connect.'; }
+  finally { Wal.busy = false; render(); }
+}
+async function switchSepolia(){
+  if (!Wal.prov) return;
+  try { await Wal.prov.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: SEPOLIA }] }); }
+  catch (e) { if (e && (e.code === 4902 || (e.data && e.data.originalError && e.data.originalError.code === 4902)))
+      await Wal.prov.request({ method: 'wallet_addEthereumChain', params: [{ chainId: SEPOLIA, chainName: 'Sepolia', nativeCurrency: { name: 'Sepolia Ether', symbol: 'ETH', decimals: 18 }, rpcUrls: [RPCS[0]], blockExplorerUrls: ['https://sepolia.etherscan.io'] }] });
+    else if (!(e && e.code === 4001)) throw e; }
+  try { const c = await Wal.prov.request({ method: 'eth_chainId' }); Wal.chain = typeof c === 'string' ? c.toLowerCase() : Wal.chain; } catch {}
+}
+function disconnectWallet(){ const pr = Wal.prov; Wal.prov = null; Wal.info = null; Wal.addr = null; Wal.chain = null; Wal.sqk = null; Wal.squeeks = null; wset(null);
+  try { pr && pr.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] }).catch(() => {}); } catch {}
+  toast('Wallet disconnected; you play as a guest'); render(); }
+// SQK and Squeek NFTs held on Sepolia, read from the chain (not from the wallet)
+let holdSeq = 0;
+async function loadHoldings(){
+  const addr = Wal.addr, seq = ++holdSeq; if (!addr) return;
+  const data = '0x70a08231' + addr.slice(2).toLowerCase().padStart(64, '0');
+  try { if (isAddr(S.ids.token)) { const [b, d] = await Promise.all([rpc('eth_call', [{ to: S.ids.token, data }, 'latest']), rpc('eth_call', [{ to: S.ids.token, data: '0x313ce567' }, 'latest'])]);
+      const dec = word(d, 0); if (seq === holdSeq && typeof b === 'string' && /^0x[0-9a-fA-F]+$/.test(b) && dec >= 0 && dec <= 36) { const v = BigInt(b === '0x' ? '0x0' : b); Wal.sqk = Number(v / 10n ** BigInt(Math.max(0, dec - 2))) / 100; } }
+    if (isAddr(S.ids.genesis)) { const n = await rpc('eth_call', [{ to: S.ids.genesis, data }, 'latest']); if (seq === holdSeq) { const v = word(n, 0); Wal.squeeks = Number.isFinite(v) ? v : null; } }
+  } catch {}
+  if (seq === holdSeq) renderWallet();
+}
+async function signPick(date, card){
+  const msg = ['Wheelbound · Raid Table pick', `Card: ${CARD[card].name}`, `Wheel day: ${date} (12:00 to 12:00 UTC)`, `Player: ${Wal.addr}`, `Installation: ${S.inst || 'unknown'}`, `Squeekchain time: ${new Date(srvNow()).toISOString().slice(0, 19)}Z`, 'Signing is free: it sends no transaction and costs no gas.'].join('\n');
+  const bytes = typeof TextEncoder === 'function' ? [...new TextEncoder().encode(msg)] : [...unescape(encodeURIComponent(msg))].map(ch => ch.charCodeAt(0));
+  const hex = '0x' + bytes.map(b => b.toString(16).padStart(2, '0')).join('');
+  const sig = await Wal.prov.request({ method: 'personal_sign', params: [hex, Wal.addr] });
+  if (typeof sig !== 'string' || !/^0x[0-9a-fA-F]{130}$/.test(sig)) throw new Error('bad signature');
+  return { msg, sig };
+}
+function renderWallet(){
+  const btns = $('wBtns'), st = $('wState'); if (!btns || !st) return;
+  const list = wallets();
+  const sig = [Wal.addr, Wal.chain, Wal.sqk, Wal.squeeks, Wal.choosing, Wal.busy, Wal.note, list.map(w => w.info.uuid).join(',')].join('|');
+  if (btns.dataset.sig === sig) return; btns.dataset.sig = sig; btns.innerHTML = ''; st.innerHTML = '';
+  const btn = (t, f, cls) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (cls ? ' ' + cls : ''); b.textContent = t; b.addEventListener('click', f); btns.appendChild(b); return b; };
+  const span = (t, cls) => { const e = document.createElement('span'); if (cls) e.className = cls; e.textContent = t; st.appendChild(e); return e; };
+  if (!Wal.addr) {
+    if (Wal.choosing && list.length > 1) { for (const w of list) btn(w.info.name, () => connectWallet(w), 'primary'); btn('Cancel', () => { Wal.choosing = false; renderWallet(); }); span('Choose a wallet. It will ask to connect on Sepolia.'); return; }
+    const b = btn(Wal.busy ? 'Connecting…' : 'Connect wallet', () => { const l = wallets(); if (!l.length) { Wal.note = 'No wallet found in this browser. Install MetaMask or Rabby, or keep playing as a guest.'; renderWallet(); return; } if (l.length === 1) connectWallet(l[0]); else { Wal.choosing = true; renderWallet(); } }, 'primary');
+    b.disabled = Wal.busy;
+    span(Wal.note || 'Playing as a guest: picks stay on this device. Connect a wallet on Sepolia to sign each pick (free, no gas, no transaction).');
+    return;
+  }
+  const a = document.createElement('a'); a.className = 'addr'; a.href = scan('address', Wal.addr); a.target = '_blank'; a.rel = 'noopener'; a.textContent = short(Wal.addr); st.appendChild(a);
+  if (Wal.chain === SEPOLIA) span('Sepolia', 'badge ok'); else { span(Wal.chain ? 'not on Sepolia' : 'network unknown', 'badge warn'); btn('Switch to Sepolia', async () => { try { await switchSepolia(); } catch {} render(); }); }
+  if (Wal.sqk != null) span(Wal.sqk.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' SQK', 'badge');
+  if (Wal.squeeks > 0) span(`🐹 ${Wal.squeeks} Squeek${Wal.squeeks > 1 ? 's' : ''} · holder`, 'badge ok');
+  span('Picks are signed by this wallet.');
+  btn('Disconnect', disconnectWallet);
+}
+// reconnect quietly to the wallet used last time (no prompt)
+const tried = new Set();
+async function quietReconnect(){ const saved = wget(); if (!saved || Wal.addr || Wal.busy) return;
+  const w = wallets().find(x => (x.info.rdns || 'injected') === saved.rdns) || (saved.rdns === 'injected' ? wallets()[0] : null);
+  if (!w || tried.has(w.info.uuid)) return; tried.add(w.info.uuid);
+  try { await useWallet(w, false); } catch {} if (typeof world !== 'undefined' && world) render(); }
+setTimeout(() => { quietReconnect(); renderWallet(); }, 600);
+// Round by round: the newest settled rounds, each a hit on the boss shaped by that day's card, each linked to Sepolia.
+const ROUND_CARD = { steady: () => 1.3, owl: h => (h >= 22 || h < 2) ? 1.6 : 1, early: h => (h >= 4 && h < 9) ? 3.5 : 1 };
+function renderStrikes(){
+  const box = $('strikes'); if (!box || !Number.isFinite(S.g)) return;
+  const now = srvNow(); const cur = Math.max(1, Math.floor((now / 1000 - S.g) / S.d) + 1);
+  const conf = Date.parse(S.status?.builder?.anchor?.confirmedAt);
+  setText('roundNow', `Round ${fmtInt(cur)} running, ends ${hhmm(roundEnd(cur))} UTC` + (S.settled ? ` · settled through ${fmtInt(S.settled)}` + (Number.isFinite(conf) ? ` at ${hhmm(conf)}` : '') : ''));
+  const rows = [];
+  for (let r = S.settled; r >= 1 && r > S.settled - 288 && rows.length < 8; r--) {
+    const w = S.rounds.get(r); if (w === undefined) continue;
+    if (w === 0) { if (S.batched.has(r)) continue; const last = rows[rows.length - 1]; if (last && last.rest) { last.from = r; continue; } rows.push({ rest: true, from: r, to: r }); continue; }
+    let from = r; if (S.batched.has(r)) while (S.batched.has(from - 1) && S.rounds.get(from - 1) === 0) from--;
+    rows.push({ r, from, w });
+  }
+  const view = rows.map(x => {
+    if (x.rest) return { x, sig: 'rest' + x.from + '-' + x.to };
+    const end = roundEnd(x.r); const d = world.days.find(y => end > y.startMs && end <= y.endMs);
+    const p = d ? pickFor(d) : null; const card = p && !p.late ? p.card : null;
+    const h = new Date(end - 1).getUTCHours(); const f = !card ? NO_CARD : ROUND_CARD[card] ? ROUND_CARD[card](h) : 1;
+    const v = roundCheck(x.r); const t = v ? v.t : null;
+    return { x, card, f, t, v, sig: [x.r, x.w, card, f, t && t.tx, v && v.state].join(':') };
+  });
+  const sig = view.map(v => v.sig).join('|'); if (box.dataset.sig === sig) return; box.dataset.sig = sig; box.innerHTML = '';
+  if (!view.length) { const li = document.createElement('li'); li.className = 'rest'; li.textContent = 'Waiting for settled rounds…'; box.appendChild(li); return; }
+  for (const it of view) {
+    const li = document.createElement('li'); const cell = (t, cls) => { const e = document.createElement('span'); if (cls) e.className = cls; e.textContent = t; li.appendChild(e); return e; };
+    if (it.x.rest) { li.className = 'rest'; const n = it.x.to - it.x.from + 1;
+      cell(n > 1 ? `Rounds ${fmtInt(it.x.from)}–${fmtInt(it.x.to)}` : `Round ${fmtInt(it.x.from)}`, 'r'); cell(`${hhmm(roundEnd(it.x.from) - S.d * 1000)}–${hhmm(roundEnd(it.x.to))}`); cell('resting, no hit'); cell(''); box.appendChild(li); continue; }
+    const mm = it.x.w * S.mmw; const n = it.x.r - it.x.from + 1;
+    cell((n > 1 ? `Rounds ${fmtInt(it.x.from)}–${fmtInt(it.x.r)}` : `Round ${fmtInt(it.x.r)}`) + ` · ${hhmm(roundEnd(it.x.from) - S.d * 1000)}–${hhmm(roundEnd(it.x.r))}`, 'r');
+    cell(`${fmtInt(mm / 1000)} m run`);
+    const c = it.card ? CARD[it.card] : null;
+    cell(`hit ${fmtInt(mm * it.f / 1000)} m` + (c ? ` ${c.emoji}` + (it.f !== 1 ? ` ×${it.f}` : ROUND_CARD[it.card] ? '' : ' + day bonus') : ' · no card, half'), 'hit');
+    const tx = document.createElement('span'); tx.className = 'tx';
+    if (it.t) { const a = document.createElement('a'); a.href = scan('tx', it.t.tx); a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Sepolia ↗'; tx.appendChild(a);
+      const b = document.createElement('span'); const st = it.v ? it.v.state : 'wait';
+      b.className = 'badge ' + (st === 'ok' ? 'ok' : st === 'bad' ? 'bad' : 'warn'); b.textContent = st === 'ok' ? `✓ block ${fmtInt(it.v.block)}` : st === 'bad' ? '✗ differs' : st === 'err' ? 'not checked' : 'checking…';
+      if (st === 'bad') b.title = 'The transaction on Sepolia does not match what the API reported for this round.'; tx.appendChild(b); }
+    else { const b = document.createElement('span'); b.className = 'badge'; b.textContent = 'no tx link'; b.title = 'The feed did not give this round a transaction.'; tx.appendChild(b); }
+    li.appendChild(tx); box.appendChild(li);
+  }
+}
 let raidTab = null;
 function renderRaid(){
   raidInst();
@@ -962,7 +1183,7 @@ function renderRaid(){
   const mine = rows.reduce((a, r) => a + (r.sc ? r.sc.score : 0), 0);
   $('raidMine').style.width = clamp(100 * mine / target, 0, 100).toFixed(1) + '%';
   const won = mine >= target; const reading = rows.some(r => r.d && !r.sc);
-  const playedNow = rows.some(r => r.sc && r.sc.cardId) || rows.some(r => raid.picks[r.date]);
+  const playedNow = rows.some(r => r.sc && r.sc.cardId) || rows.some(r => myPicks()[r.date]);
   $('raidMineTxt').textContent = `${fmtKm(mine)} of ${fmtKm(target, 0)}` + (reading ? ' · reading…' : won && playedNow ? ' · victory' : '');
   $('raidAloneTxt').textContent = wk.known ? `${fmtKm(wk.dmgMm)} of ${fmtKm(wk.hpMm, 0)}` + (wk.defeatedAt ? ' · defeated' : '') : 'reading…';
   $('raidAlone').style.width = (wk.known ? clamp(100 * wk.dmgMm / wk.hpMm, 0, 100) : 0).toFixed(1) + '%';
@@ -970,7 +1191,7 @@ function renderRaid(){
   const strip = $('weekStrip'); strip.innerHTML = '';
   for (const r of rows) {
     const cell = document.createElement('div'); cell.className = 'wday' + (today && r.date === today.date && today.isToday ? ' now' : '') + (!r.d ? ' future' : '');
-    const p = raid.picks[r.date];
+    const p = myPicks()[r.date];
     const top = document.createElement('span'); top.className = 'k'; top.textContent = dateLabel(r.date);
     const ic = document.createElement('span'); ic.className = 'ic'; const cid = r.sc ? r.sc.cardId : (p && CARD[p.card] ? p.card : null);
     ic.innerHTML = cid ? `<svg viewBox="0 0 48 48" aria-hidden="true">${CARD_ICONS[cid]}</svg>` : '<span class="none">—</span>';
@@ -991,14 +1212,21 @@ function renderRaid(){
   for (const o of opts) { const b = document.createElement('button'); b.type = 'button'; b.className = 'tab'; b.setAttribute('aria-pressed', String(o.date === raidTab)); b.textContent = `${o.label} · ${dateLabel(o.date)}`; b.addEventListener('click', () => { raidTab = o.date; renderRaid(); }); tabs.appendChild(b); }
   const hand = $('hand'); hand.innerHTML = '';
   if (raidTab) {
-    const start = Date.parse(raidTab + 'T00:00:00Z') + S.offsetMs; const sel = raid.picks[raidTab] && raid.picks[raidTab].card;
+    const start = Date.parse(raidTab + 'T00:00:00Z') + S.offsetMs; const sel = myPicks()[raidTab] && myPicks()[raidTab].card;
     $('handLock').textContent = srvNow() < start ? `Deal opens at 12:00 UTC · lock: when the wheel first turns that day` : 'Locks the moment the wheel first turns';
     for (const id of handFor(raidTab)) { const c = CARD[id]; const b = document.createElement('button'); b.type = 'button'; b.className = 'card'; b.setAttribute('role', 'radio'); b.setAttribute('aria-checked', String(sel === id));
       b.innerHTML = `<svg viewBox="0 0 48 48" aria-hidden="true">${CARD_ICONS[id]}</svg><b></b><span class="rule"></span><span class="hint"></span>`;
       b.querySelector('b').textContent = c.name; b.querySelector('.rule').textContent = c.rule; b.querySelector('.hint').textContent = c.hint;
-      b.addEventListener('click', () => { if (!pickOpen(raidTab)) { toast('That day is locked'); renderRaid(); return; }
-        raidSync(); raidInst(); const td = world.days[world.days.length - 1]; const dist = td && td.date === raidTab && Number.isFinite(td.distMm) ? td.distMm : 0;
-        raid.picks[raidTab] = { card: id, at: Math.round(srvNow()), dist }; raidSave(); toast(`${c.name} picked for ${dateLabel(raidTab)}`); renderRaid(); });
+      b.addEventListener('click', async () => { const date = raidTab; if (!pickOpen(date)) { toast('That day is locked'); renderRaid(); return; }
+        let signed = null;
+        const who = Wal.addr;
+        if (who) { if (Wal.signing) { toast('Finish signing in the wallet first'); return; } Wal.signing = true;
+          try { signed = await signPick(date, id); } catch (e) { toast(e && e.code === 4001 ? 'Not signed, so the pick was not saved' : 'The wallet could not sign the pick'); return; } finally { Wal.signing = false; }
+          if ((Wal.addr || '').toLowerCase() !== who.toLowerCase()) { toast('The wallet changed while signing, so the pick was not saved'); renderRaid(); return; }
+          if (!pickOpen(date)) { toast('That day locked while signing'); renderRaid(); return; } }
+        raidSync(); raidInst(); const td = world.days[world.days.length - 1]; const dist = td && td.date === date && Number.isFinite(td.distMm) ? td.distMm : 0;
+        myPicks()[date] = { card: id, at: Math.round(srvNow()), dist, ...(signed ? { by: who, msg: signed.msg, sig: signed.sig } : {}) };
+        raidSave(); toast(`${c.name} picked for ${dateLabel(date)}` + (signed ? ', signed' : '')); renderRaid(); });
       hand.appendChild(b); }
   } else { $('handLock').textContent = ''; const p = document.createElement('p'); p.className = 'sub'; p.textContent = clk.length ? 'No hand open right now.' : 'Connecting to the wheel…'; hand.appendChild(p); }
   // previous weeks
@@ -1008,6 +1236,7 @@ function renderRaid(){
     if (!ok) { b2.className = 'lost'; b2.textContent = 'reading…'; } else if (!played) { b2.className = 'lost'; b2.textContent = 'not played'; } else { b2.className = tot >= t ? 'won' : 'lost'; b2.textContent = `${fmtKm(tot, 0)} of ${fmtKm(t, 0)} · ${tot >= t ? 'victory' : 'escaped'} · ${played} card${played > 1 ? 's' : ''}`; }
     li.append(a, b2); hist.appendChild(li); }
   shareRows = { wk, rows, mine, target };
+  renderWallet(); renderStrikes();
 }
 let shareRows = null;
 async function shareRaid(){
@@ -1016,6 +1245,7 @@ async function shareRaid(){
   for (const r of rows) { if (!r.sc) continue; const c = r.sc.cardId ? CARD[r.sc.cardId] : null;
     lines.push(`${dateLabel(r.date)} ${c ? c.emoji : '▫️'} ${c ? (r.sc.pending ? '⏳' : '⭐'.repeat(r.sc.stars) || '·') : '·'} ${fmtKm(r.sc.score)}`); }
   lines.push(`Raid: ${fmtKm(mine)} / ${fmtKm(target, 0)} ${mine >= target ? '✅' : '⚔️'}`);
+  if (Wal.addr) lines.push(`Player ${short(Wal.addr)} · picks signed by the wallet` + (Wal.squeeks > 0 ? ' · 🐹 Squeek holder on Sepolia' : ''));
   if (location.protocol.startsWith('http')) lines.push(location.href.split('#')[0]);
   const t = lines.join('\n');
   try { await navigator.clipboard.writeText(t); toast('Raid result copied'); }
@@ -1066,6 +1296,7 @@ function renderNow(){
         b2.className = w.defeatedAt ? 'won' : 'lost'; b2.textContent = !w.known ? 'reading…' : w.defeatedAt ? 'defeated ' + dateLabel(w.defeatedDay.date) : 'escaped (' + fmtKm(w.dmgMm, 0) + ' of ' + fmtKm(w.hpMm, 0) + ')'; li.append(a, b2); log.appendChild(li); } } }
   if (!ov) { renderRaid(); renderTrail(next); renderChapters(); }
   setText('foot2', `${fmtInt(S.rounds.size)} rounds read · ${world.days.length} chapters`);
+  if (isAddr(S.ids.core)) { const cl = $('coreLink'); if (cl.hidden) { cl.href = scan('address', S.ids.core); cl.textContent = 'SqueekCore on Sepolia ' + short(S.ids.core); cl.hidden = false; } }
   renderOverlay(next, wk);
 }
 function setText(id, t){ const e = $(id); if (e && e.textContent !== t) e.textContent = t; }
@@ -1154,9 +1385,9 @@ const busy = {};
 async function once(name, fn){ if (busy[name]) return false; busy[name] = true; try { return await safe(fn); } finally { busy[name] = false; } }
 async function afterInstChange(){ if (!S.instChanged) return; S.instChanged = false; await once('core', loadCore); await once('stats', loadStats); await once('meas', loadMeas); }
 function startTimers(){
-  setInterval(async () => { await once('status', loadStatus); await afterInstChange(); render(); }, 10000);
+  setInterval(async () => { await once('status', loadStatus); await afterInstChange(); render(); verifyRecent().then(render); }, 10000);
   setInterval(async () => { await once('hist', () => loadHistory(30, render)); await afterInstChange(); render(); }, 60000);
-  setInterval(async () => { await once('stats', loadStats); render(); }, 5 * 60000);
+  setInterval(async () => { await once('stats', loadStats); if (Wal.addr) loadHoldings(); render(); }, 5 * 60000);
   setInterval(async () => { await once('meas', loadMeas); render(); }, 10 * 60000);
   setInterval(async () => { if (!S.statsDays.length) await once('stats', loadStats); if (!Number.isFinite(S.g)) await once('core', loadCore); render(); }, 15000);
 }
@@ -1169,7 +1400,7 @@ async function boot(){
   await once('hist', () => loadHistory(400, render));
   render();
 }
-window.__wb = { S, CARDS, CARD, handFor, dayParts, scoreDay, pickOpen, raid, get world(){ return world; }, buildWorld, chapterFor, dayFacts, timeAtPos, biomeAt, landmarkName, bossFor, hash, rng, applySettlement };
+window.__wb = { Wal, verified, verifyRecent, myPicks, S, CARDS, CARD, handFor, dayParts, scoreDay, pickOpen, raid, get world(){ return world; }, buildWorld, chapterFor, dayFacts, timeAtPos, biomeAt, landmarkName, bossFor, hash, rng, applySettlement };
 boot();
 })();
 </script>

@@ -5,11 +5,11 @@ Art direction: a cosy moonlit storybook trail. Deep navy night (#0e1420), warm l
 1. Replace og.png (1200x630, the link preview): Squeektoshi running on a lantern-lit trail under a big moon, the title "Wheelbound" large (gold "bound"), the line "A real hamster runs. Every settled round writes the story." and a fan of three glowing tactic cards (Night Owl, Sprint, Marathon). Rich lighting, not flat shapes.
 2. Add card.png (1600x900, for the Squeekchain board, which shows it as LED dots): the same scene in high-contrast black and white, big bold shapes, title WHEELBOUND readable.
 3. Make the in-page art richer: the canvas drawing in drawScene, paintDay, drawHamster, drawLandmark and drawProps (better hamster, lighting, depth, landmarks, details). You may add image files in an art/ folder and draw them on the canvas, but skip drawing any image that has not loaded yet so nothing breaks.
-4. Polish the CSS: cards, week strip, panels, buttons, hover and focus states, gentle transitions.
+4. Polish the CSS: cards, week strip, the wallet bar, the round-by-round list, panels, buttons, hover and focus states, gentle transitions.
 5. Set og:image and twitter:image in index.html to the absolute URL of og.png on this site's own imd.site domain.
 
 Do not change:
-- Data or game logic: loadCore, loadStats, loadStatus, loadMeas, loadHistory, holes, walkFailed, applySettlement, persist, buildWorld, timeAtPos, dayFacts, chapterFor, segments, dayParts, CARDS (rules and scores), NO_CARD, TARGET, pickOpen, pickFor, scoreDay, srvNow, timers, API URLs, localStorage keys.
+- Data, chain, wallet or game logic: loadCore, loadStats, loadStatus, loadMeas, loadHistory, holes, walkFailed, applySettlement, noteTx, noteIds, persist, buildWorld, timeAtPos, dayFacts, chapterFor, segments, dayParts, CARDS (rules and scores), NO_CARD, TARGET, pickOpen, pickFor, scoreDay, myPicks, srvNow, rpc, verifyRecent, useWallet, connectWallet, switchSepolia, signPick, loadHoldings, the logic inside renderWallet and renderStrikes (you may restyle them with CSS), timers, API and RPC URLs, localStorage keys.
 - Element ids, page text, card rules, or #overlay mode (its background must stay transparent).
 - No frameworks, build steps or external scripts. Keep index.html, favicon.svg and README.md at the root.
 

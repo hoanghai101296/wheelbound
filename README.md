@@ -13,6 +13,13 @@ The endless journey of Squeektoshi, written by the wheel, and a daily tactic gam
 - Beat the boss's health ×1.4 by the end of the week to win the raid, then share the week as an emoji grid.
 - Fair play: picks are checked against Squeekchain's own clock (not the computer's), and a pick made after the wheel first turned does not count.
 
+## Wallet and Sepolia
+
+- **Connect a wallet** (MetaMask, Rabby or any EIP-6963 wallet). Wheelbound asks to switch to Sepolia, where Squeekchain runs.
+- **Signed picks.** With a wallet connected, every card pick is signed with a plain message (`personal_sign`): it is free and sends no transaction. Picks are kept per wallet; without a wallet you play as a guest on this device.
+- **Your holdings.** The wallet bar shows the SQK balance and the number of Squeek NFTs the address holds, read straight from Sepolia.
+- **Round by round.** Every settled 10-minute round is a hit on the boss, shaped by that day's card. Each hit links its settlement transaction on Sepolia, and Wheelbound reads that transaction back from Sepolia (public RPC) and checks that its SqueekCore log carries the same rounds and the same running total of work as the API before marking it ✓.
+
 ## The journey
 
 - **The trail.** Squeektoshi's position is the real lifetime distance the wheel has turned (exactly 878 mm per unit of settled work). A landmark waits every 5 km and the land changes every 25 km, through eight lands from the Seed Meadows to the Moonlit Burrows.
@@ -34,6 +41,7 @@ All data is read in the browser from the public Squeekchain API at `https://api.
 | `/v1/measurement/stats?range=30d` | the wheel-day boundary, recent half-hour buckets, lifetime distance |
 | `/v1/events?category=protocol` | settled round history, read once and cached, then only the newest page; gaps are found and refilled on their own |
 | `/v1/events?category=measurement` | distance milestones, streaks and speed records |
+| Sepolia RPC (`eth_getTransactionReceipt`, `eth_call`) | checking settlements on SqueekCore, SQK and Squeek balances |
 
 ## Run locally
 
