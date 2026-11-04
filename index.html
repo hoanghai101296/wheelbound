@@ -112,6 +112,9 @@ header.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items
 .badge.warn{border-color:color-mix(in srgb,var(--lantern) 55%,var(--line));color:var(--lantern)}
 .badge.bad{border-color:color-mix(in srgb,var(--ember) 55%,var(--line));color:var(--ember)}
 .btn.primary{background:var(--lantern);color:#1a1405;border-color:var(--lantern)}
+.btn.wpick{display:inline-flex;align-items:center;gap:8px;border-color:color-mix(in srgb,var(--lantern) 50%,var(--line))}
+.btn.wpick img{border-radius:4px}
+a.btn{text-decoration:none;color:var(--fg);display:inline-flex;align-items:center}
 .strikes{margin-top:20px}
 .strikes-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 14px;margin-bottom:8px}
 .strike-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
@@ -1015,13 +1018,15 @@ const word = (data, i) => { const w = typeof data === 'string' ? data.slice(2 + 
 // number of active rounds and the same running total of work as the API; a round's work is then the difference between
 // its settlement's total and the previous settlement's total, both read from Sepolia. Only then does the row get its ✓.
 const verified = new Map();   // tx -> { state: 'wait' | 'ok' | 'bad' | 'err', cum, block, at }
+let strikeWant = [];          // settlements the round list needs checked, newest first
 let verifying = false;
 async function verifyRecent(){
   if (verifying || !isAddr(S.ids.core) || document.body.classList.contains('overlay')) return; verifying = true;
   try {
     const keep = new Set([...S.tx.values()].map(t => t.tx)); for (const k of verified.keys()) if (!keep.has(k)) verified.delete(k);
-    const due = [...S.tx.entries()].sort((x, y) => y[0] - x[0]).slice(0, 14)
-      .filter(([, t]) => { const v = verified.get(t.tx); return !v || (v.state === 'err' && Date.now() - v.at > 60000); }).slice(0, 6);
+    // the rounds shown in the list and the settlement before each of them; the newest settlements otherwise
+    const want = strikeWant.length ? strikeWant : [...S.tx.keys()].sort((x, y) => y - x).slice(0, 8);
+    const due = [...new Set(want)].map(b => [b, S.tx.get(b)]).filter(([, t]) => { if (!t) return false; const v = verified.get(t.tx); return !v || (v.state === 'err' && Date.now() - v.at > 60000); }).slice(0, 8);
     for (const [b, t] of due) {
       verified.set(t.tx, { state: 'wait', at: Date.now() });
       try {
@@ -1050,7 +1055,31 @@ const bound = new WeakSet();
 window.addEventListener('eip6963:announceProvider', e => { const d = e.detail;
   if (d && d.provider && typeof d.provider.request === 'function' && d.info && typeof d.info.name === 'string' && !Wal.list.some(p => p.info.uuid === d.info.uuid)) { Wal.list.push(d); renderWallet(); setTimeout(quietReconnect, 0); } });
 try { window.dispatchEvent(new Event('eip6963:requestProvider')); } catch {}
-function wallets(){ const l = Wal.list.slice(); if (!l.length && window.ethereum && typeof window.ethereum.request === 'function') l.push({ info: { name: 'Browser wallet', rdns: 'injected', uuid: 'injected' }, provider: window.ethereum }); return l; }
+// Every wallet the browser offers: the ones that announce themselves (EIP-6963: MetaMask, Rabby, OKX, Coinbase, Trust,
+// Bitget, Phantom, Brave, …) plus wallets that only inject an older global, without listing one twice.
+const KNOWN = [['isRabby', 'Rabby', 'io.rabby'], ['isOkxWallet', 'OKX Wallet', 'com.okex.wallet'], ['isOKExWallet', 'OKX Wallet', 'com.okex.wallet'], ['isCoinbaseWallet', 'Coinbase Wallet', 'com.coinbase.wallet'],
+  ['isTrust', 'Trust Wallet', 'com.trustwallet.app'], ['isTrustWallet', 'Trust Wallet', 'com.trustwallet.app'], ['isBitKeep', 'Bitget Wallet', 'com.bitget.web3'], ['isPhantom', 'Phantom', 'app.phantom'],
+  ['isBraveWallet', 'Brave Wallet', 'com.brave.wallet'], ['isTokenPocket', 'TokenPocket', 'pro.tokenpocket'], ['isSafePal', 'SafePal', 'io.safepal'], ['isZerion', 'Zerion', 'io.zerion.wallet'], ['isMetaMask', 'MetaMask', 'io.metamask']];
+function legacyInfo(pr, name, rdns){ if (!name) { const k = KNOWN.find(([f]) => { try { return pr[f] === true; } catch { return false; } }); name = k ? k[1] : 'Browser wallet'; rdns = k ? k[2] : 'injected'; }
+  return { info: { name, rdns, uuid: 'legacy:' + rdns, icon: '' }, provider: pr }; }
+function wallets(){
+  const l = Wal.list.slice(); const ok = pr => { try { return !!pr && typeof pr.request === 'function'; } catch { return false; } };
+  const add = w => { if (!ok(w.provider) || l.some(x => x.provider === w.provider || x.info.rdns === w.info.rdns)) return; l.push(w); };
+  try {
+    add(legacyInfo(window.okxwallet, 'OKX Wallet', 'com.okex.wallet'));
+    add(legacyInfo(window.bitkeep && window.bitkeep.ethereum, 'Bitget Wallet', 'com.bitget.web3'));
+    add(legacyInfo(window.trustwallet, 'Trust Wallet', 'com.trustwallet.app'));
+    add(legacyInfo(window.coinbaseWalletExtension, 'Coinbase Wallet', 'com.coinbase.wallet'));
+    add(legacyInfo(window.phantom && window.phantom.ethereum, 'Phantom', 'app.phantom'));
+    const eth = window.ethereum; if (eth && Array.isArray(eth.providers)) for (const pr of eth.providers) add(legacyInfo(pr));
+    if (eth) add(legacyInfo(eth));
+  } catch {}
+  return l;
+}
+// no wallet here (often a phone): open this page inside a wallet app's own browser
+function appLinks(){ const url = location.href.split('#')[0]; const e = encodeURIComponent;
+  return [['MetaMask', 'https://metamask.app.link/dapp/' + url.replace(/^https?:\/\//, '')], ['OKX Wallet', 'https://web3.okx.com/download?deeplink=' + e('okx://wallet/dapp/url?dappUrl=' + e(url))],
+    ['Trust Wallet', 'https://link.trustwallet.com/open_url?coin_id=60&url=' + e(url)], ['Coinbase Wallet', 'https://go.cb-w.com/dapp?cb_url=' + e(url)]]; }
 const wget = () => { try { const v = JSON.parse(localStorage.getItem(WKEY) || 'null'); return v && typeof v.rdns === 'string' ? v : null; } catch { return null; } };
 const wset = v => { try { v ? localStorage.setItem(WKEY, JSON.stringify(v)) : localStorage.removeItem(WKEY); } catch {} };
 async function useWallet(w, ask){
@@ -1063,7 +1092,7 @@ async function useWallet(w, ask){
   if ((Wal.addr || '').toLowerCase() !== accts[0].toLowerCase()) { Wal.sqk = null; Wal.squeeks = null; }
   Wal.prov = pr; Wal.info = w.info; Wal.addr = accts[0]; Wal.choosing = false;
   try { const c = await pr.request({ method: 'eth_chainId' }); Wal.chain = typeof c === 'string' ? c.toLowerCase() : null; } catch { Wal.chain = null; }
-  wset({ rdns: w.info.rdns || 'injected' }); loadHoldings(); return true;
+  Wal.noWallet = false; wset({ rdns: w.info.rdns || 'injected' }); loadHoldings(); return true;
 }
 async function connectWallet(w){
   if (Wal.busy) return; Wal.busy = true; Wal.note = ''; renderWallet();
@@ -1104,18 +1133,24 @@ async function signPick(date, card){
 function renderWallet(){
   const btns = $('wBtns'), st = $('wState'); if (!btns || !st) return;
   const list = wallets();
-  const sig = [Wal.addr, Wal.chain, Wal.sqk, Wal.squeeks, Wal.choosing, Wal.busy, Wal.note, list.map(w => w.info.uuid).join(',')].join('|');
+  const sig = [Wal.addr, Wal.chain, Wal.sqk, Wal.squeeks, Wal.choosing, Wal.noWallet, Wal.busy, Wal.note, Wal.info && Wal.info.name, list.map(w => w.info.uuid).join(',')].join('|');
   if (btns.dataset.sig === sig) return; btns.dataset.sig = sig; btns.innerHTML = ''; st.innerHTML = '';
   const btn = (t, f, cls) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (cls ? ' ' + cls : ''); b.textContent = t; b.addEventListener('click', f); btns.appendChild(b); return b; };
   const span = (t, cls) => { const e = document.createElement('span'); if (cls) e.className = cls; e.textContent = t; st.appendChild(e); return e; };
   if (!Wal.addr) {
-    if (Wal.choosing && list.length > 1) { for (const w of list) btn(w.info.name, () => connectWallet(w), 'primary'); btn('Cancel', () => { Wal.choosing = false; renderWallet(); }); span('Choose a wallet. It will ask to connect on Sepolia.'); return; }
-    const b = btn(Wal.busy ? 'Connecting…' : 'Connect wallet', () => { const l = wallets(); if (!l.length) { Wal.note = 'No wallet found in this browser. Install MetaMask or Rabby, or keep playing as a guest.'; renderWallet(); return; } if (l.length === 1) connectWallet(l[0]); else { Wal.choosing = true; renderWallet(); } }, 'primary');
+    if (Wal.choosing && list.length > 1) { for (const w of list) { const b = btn(w.info.name, () => connectWallet(w), 'wpick');
+        if (typeof w.info.icon === 'string' && /^data:image\/(svg\+xml|png|webp|jpeg|gif)[;,]/.test(w.info.icon)) { const im = document.createElement('img'); im.src = w.info.icon; im.alt = ''; im.width = 18; im.height = 18; b.prepend(im); } }
+      btn('Cancel', () => { Wal.choosing = false; renderWallet(); }); span(`${list.length} wallets found. Choose one; it will ask to connect on Sepolia.`); return; }
+    if (Wal.noWallet) { for (const [n, href] of appLinks()) { const a = document.createElement('a'); a.className = 'btn'; a.href = href; a.rel = 'noopener'; a.textContent = 'Open in ' + n; btns.appendChild(a); }
+      btn('Back', () => { Wal.noWallet = false; renderWallet(); });
+      span('No wallet in this browser. On a phone, open Wheelbound inside your wallet app; on a computer, install a wallet extension (MetaMask, Rabby, OKX, Coinbase, Trust, Bitget, …). Or keep playing as a guest.'); return; }
+    const b = btn(Wal.busy ? 'Connecting…' : 'Connect wallet', () => { const l = wallets(); if (!l.length) { Wal.noWallet = true; renderWallet(); return; } if (l.length === 1) connectWallet(l[0]); else { Wal.choosing = true; renderWallet(); } }, 'primary');
     b.disabled = Wal.busy;
-    span(Wal.note || 'Playing as a guest: picks stay on this device. Connect a wallet on Sepolia to sign each pick (free, no gas, no transaction).');
+    span(Wal.note || 'Playing as a guest: picks stay on this device. Connect any EVM wallet on Sepolia to sign each pick (free, no gas, no transaction).');
     return;
   }
   const a = document.createElement('a'); a.className = 'addr'; a.href = scan('address', Wal.addr); a.target = '_blank'; a.rel = 'noopener'; a.textContent = short(Wal.addr); st.appendChild(a);
+  if (Wal.info && Wal.info.name) span(Wal.info.name, 'badge');
   if (Wal.chain === SEPOLIA) span('Sepolia', 'badge ok'); else { span(Wal.chain ? 'not on Sepolia' : 'network unknown', 'badge warn'); btn('Switch to Sepolia', async () => { try { await switchSepolia(); } catch {} render(); }); }
   if (Wal.sqk != null) span(Wal.sqk.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' SQK', 'badge');
   if (Wal.squeeks > 0) span(`🐹 ${Wal.squeeks} Squeek${Wal.squeeks > 1 ? 's' : ''} · holder`, 'badge ok');
@@ -1151,6 +1186,7 @@ function renderStrikes(){
     const v = roundCheck(x.r); const t = v ? v.t : null;
     return { x, card, f, t, v, sig: [x.r, x.w, card, f, t && t.tx, v && v.state].join(':') };
   });
+  strikeWant = view.filter(v => v.t).flatMap(v => [v.x.r, v.t.a]);
   const sig = view.map(v => v.sig).join('|'); if (box.dataset.sig === sig) return; box.dataset.sig = sig; box.innerHTML = '';
   if (!view.length) { const li = document.createElement('li'); li.className = 'rest'; li.textContent = 'Waiting for settled rounds…'; box.appendChild(li); return; }
   for (const it of view) {
@@ -1398,7 +1434,7 @@ async function boot(){
   await Promise.all([once('core', loadCore), once('status', loadStatus), once('stats', loadStats), once('meas', loadMeas)]);
   S.ready = true; render();
   await once('hist', () => loadHistory(400, render));
-  render();
+  render(); verifyRecent().then(render);
 }
 window.__wb = { Wal, verified, verifyRecent, myPicks, S, CARDS, CARD, handFor, dayParts, scoreDay, pickOpen, raid, get world(){ return world; }, buildWorld, chapterFor, dayFacts, timeAtPos, biomeAt, landmarkName, bossFor, hash, rng, applySettlement };
 boot();

@@ -15,7 +15,7 @@ The endless journey of Squeektoshi, written by the wheel, and a daily tactic gam
 
 ## Wallet and Sepolia
 
-- **Connect a wallet** (MetaMask, Rabby or any EIP-6963 wallet). Wheelbound asks to switch to Sepolia, where Squeekchain runs.
+- **Connect any EVM wallet**: every wallet that announces itself (EIP-6963: MetaMask, Rabby, OKX, Coinbase, Trust, Bitget, Phantom, Brave, Keplr, …) is listed to choose from, and older wallets that only inject `window.ethereum`, `window.okxwallet` and the like are found too. Wheelbound asks to switch to Sepolia, where Squeekchain runs. On a phone without a wallet, it offers to open the page inside the MetaMask, OKX, Trust or Coinbase app.
 - **Signed picks.** With a wallet connected, every card pick is signed with a plain message (`personal_sign`): it is free and sends no transaction. Picks are kept per wallet; without a wallet you play as a guest on this device.
 - **Your holdings.** The wallet bar shows the SQK balance and the number of Squeek NFTs the address holds, read straight from Sepolia.
 - **Round by round.** Every settled 10-minute round is a hit on the boss, shaped by that day's card. Each hit links its settlement transaction on Sepolia, and Wheelbound reads that transaction back from Sepolia (public RPC) and checks that its SqueekCore log carries the same rounds and the same running total of work as the API before marking it ✓.
